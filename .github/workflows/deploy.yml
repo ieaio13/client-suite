@@ -1,0 +1,41 @@
+name: Deploy to cPanel
+
+# Runs every time a change is saved (committed) to the main branch,
+# or manually from the Actions tab ("Run workflow").
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Changing this file tells the server to restart the app with the new code.
+      - name: Mark app for restart
+        run: mkdir -p tmp && date -u > tmp/restart.txt
+
+      - name: Upload changed files to cPanel
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          security: loose
+          local-dir: ./
+          server-dir: ./
+          # Only the files the running app needs are uploaded.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .github/**
+            supabase/**
+            migration/**
+            scripts/**
+            README.md
+            env.example
+            *.zip
