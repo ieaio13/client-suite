@@ -14,7 +14,8 @@ if (typeof process.loadEnvFile === 'function') {
 // Imported after .env is loaded so APP_TIMEZONE etc. are picked up.
 const { dispatch } = await import('./lib/handlers.js');
 
-const INDEX_PATH = new URL('./public/index.html', import.meta.url);
+const APP_PATH = new URL('./public/index.html', import.meta.url);
+const LANDING_PATH = new URL('./public/landing.html', import.meta.url);
 const MAX_BODY_BYTES = 1024 * 1024;
 const BASE_HEADERS = {
   'X-Robots-Tag': 'noindex, nofollow',
@@ -101,7 +102,25 @@ http.createServer(async (req, res) => {
       });
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'text/plain', 'Method not allowed');
-    send(res, 200, 'text/html; charset=utf-8', await fs.readFile(INDEX_PATH));
+
+    const query = (req.url || '').indexOf('?') === -1 ? '' : req.url.slice(req.url.indexOf('?'));
+    // Portal links from before the landing page existed (/?t=...) now live at /app?t=...
+    if (path === '/' && /[?&]t=/.test(query)) {
+      res.writeHead(302, { ...BASE_HEADERS, Location: '/app' + query });
+      return res.end();
+    }
+    if (path === '/' || path === '/index.html') {
+      return send(res, 200, 'text/html; charset=utf-8', await fs.readFile(LANDING_PATH));
+    }
+    if (path === '/app' || path === '/app/') {
+      return send(res, 200, 'text/html; charset=utf-8', await fs.readFile(APP_PATH));
+    }
+    if (path === '/favicon.ico') {
+      res.writeHead(204, BASE_HEADERS);
+      return res.end();
+    }
+    res.writeHead(302, { ...BASE_HEADERS, Location: '/' });
+    res.end();
   } catch (e) {
     console.error(e);
     if (!res.headersSent) send(res, 500, 'text/plain', 'Server error');

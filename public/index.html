@@ -4,7 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>ClientFlow</title>
+  <title>Clientflow</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%231f5fd6%27/%3E%3Crect x=%277%27 y=%2712%27 width=%273%27 height=%2710%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2712%27 y=%279%27 width=%273%27 height=%2714%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2717%27 y=%277%27 width=%273%27 height=%2718%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2722%27 y=%2711%27 width=%273%27 height=%2711%27 rx=%271.5%27 fill=%27white%27/%3E%3C/svg%3E">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('cocs_theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.setAttribute('data-theme', savedTheme);
+    } catch (e) {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,6 +40,86 @@
       --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
       --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
       --shadow-lg: 0 16px 36px rgba(15, 23, 42, 0.16);
+      --surface-muted: #e2e8f0;
+      --today-bg: #f8fbff;
+      --board-col: #ebeff5;
+      --board-drop: #e2eaf8;
+      --hover-tint: rgba(15, 23, 42, 0.05);
+      --warn-bg: #fffbeb;
+      --warn-border: #fde68a;
+      --warn-text: #92400e;
+      --toast-bg: #0f172a;
+      color-scheme: light;
+    }
+
+    /* Dark theme: chosen explicitly, or following the device when set to Auto */
+    :root[data-theme="dark"] {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-subtle: #172033;
+      --surface-muted: #1f2a3c;
+      --border: #263244;
+      --border-strong: #354258;
+      --text: #e5e9f0;
+      --text-muted: #a8b3c4;
+      --text-soft: #8792a5;
+      --accent: #4c8dff;
+      --accent-hover: #6aa1ff;
+      --accent-soft: #16294a;
+      --danger: #f05252;
+      --danger-soft: #3a1619;
+      --st-draft: #6b7689;
+      --st-review: #c27c0e;
+      --st-approved: #2f6fe0;
+      --st-scheduled: #7c5ad6;
+      --st-published: #1a8a4f;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.6);
+      --today-bg: #13213a;
+      --board-col: #0f1729;
+      --board-drop: #16284a;
+      --hover-tint: rgba(255, 255, 255, 0.06);
+      --warn-bg: #2a2110;
+      --warn-border: #5c4515;
+      --warn-text: #f5c56b;
+      --toast-bg: #273449;
+      color-scheme: dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0b1120;
+        --surface: #111827;
+        --surface-subtle: #172033;
+        --surface-muted: #1f2a3c;
+        --border: #263244;
+        --border-strong: #354258;
+        --text: #e5e9f0;
+        --text-muted: #a8b3c4;
+        --text-soft: #8792a5;
+        --accent: #4c8dff;
+        --accent-hover: #6aa1ff;
+        --accent-soft: #16294a;
+        --danger: #f05252;
+        --danger-soft: #3a1619;
+        --st-draft: #6b7689;
+        --st-review: #c27c0e;
+        --st-approved: #2f6fe0;
+        --st-scheduled: #7c5ad6;
+        --st-published: #1a8a4f;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+        --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.6);
+        --today-bg: #13213a;
+        --board-col: #0f1729;
+        --board-drop: #16284a;
+        --hover-tint: rgba(255, 255, 255, 0.06);
+        --warn-bg: #2a2110;
+        --warn-border: #5c4515;
+        --warn-text: #f5c56b;
+        --toast-bg: #273449;
+        color-scheme: dark;
+      }
     }
 
     * { box-sizing: border-box; }
@@ -99,7 +186,7 @@
       border-color: transparent;
       background: transparent;
     }
-    .btn-ghost:hover:not(:disabled) { background: rgba(15, 23, 42, 0.05); }
+    .btn-ghost:hover:not(:disabled) { background: var(--hover-tint); }
     .btn-sm { padding: 4px 9px; font-size: 12.5px; border-radius: 6px; }
 
     input[type="text"], input[type="email"], input[type="password"], input[type="date"], input[type="time"], input[type="number"], input[type="url"], select, textarea {
@@ -298,7 +385,7 @@
     }
     .sub-tabs {
       display: inline-flex;
-      background: #e2e8f0;
+      background: var(--surface-muted);
       padding: 3px;
       border-radius: var(--radius);
       gap: 2px;
@@ -374,8 +461,8 @@
       gap: 4px;
       position: relative;
     }
-    .cal-cell.outside { background: #f8fafc; color: var(--text-soft); }
-    .cal-cell.today { background: #f8fbff; }
+    .cal-cell.outside { background: var(--surface-subtle); color: var(--text-soft); }
+    .cal-cell.today { background: var(--today-bg); }
     .cal-cell.drag-over { background: var(--accent-soft); outline: 2px dashed var(--accent); }
     .cal-cell-top {
       display: flex;
@@ -419,7 +506,7 @@
       border-radius: 3px;
       object-fit: cover;
       flex-shrink: 0;
-      background: #e2e8f0;
+      background: var(--surface-muted);
     }
     .cal-chip-text {
       white-space: nowrap;
@@ -437,7 +524,7 @@
       padding-bottom: 12px;
     }
     .board-col {
-      background: #ebeff5;
+      background: var(--board-col);
       border-radius: var(--radius-lg);
       display: flex;
       flex-direction: column;
@@ -458,7 +545,7 @@
       gap: 10px;
       flex: 1;
     }
-    .board-col.drag-over { outline: 2px dashed var(--accent); background: #e2eaf8; }
+    .board-col.drag-over { outline: 2px dashed var(--accent); background: var(--board-drop); }
     .board-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -563,7 +650,7 @@
       vertical-align: middle;
     }
     table.data-table tr:last-child td { border-bottom: none; }
-    table.data-table tr.clickable:hover td { background: #f8fafc; cursor: pointer; }
+    table.data-table tr.clickable:hover td { background: var(--surface-subtle); cursor: pointer; }
 
     /* Modals */
     .modal-backdrop {
@@ -656,7 +743,7 @@
       height: 82px;
       object-fit: cover;
       display: block;
-      background: #e2e8f0;
+      background: var(--surface-muted);
     }
     .asset-card .video-placeholder { height: 82px; }
     .asset-card-controls {
@@ -678,7 +765,7 @@
       max-width: 380px;
     }
     .toast {
-      background: #0f172a;
+      background: var(--toast-bg);
       color: #fff;
       padding: 11px 15px;
       border-radius: var(--radius);
@@ -710,6 +797,112 @@
       box-shadow: var(--shadow-md);
     }
 
+    .theme-toggle { white-space: nowrap; }
+
+    /* ---------- Motion ---------- */
+    @keyframes cf-fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes cf-fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes cf-pop-in { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
+    @keyframes cf-slide-in { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+    @keyframes cf-bars { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
+    @keyframes cf-float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(40px, -30px) scale(1.1); } }
+    @keyframes cf-shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(3px); } 30%, 50%, 70% { transform: translateX(-6px); } 40%, 60% { transform: translateX(6px); } }
+
+    .animate-in > * { animation: cf-fade-up 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    .animate-in > *:nth-child(2) { animation-delay: 0.06s; }
+    .animate-in > *:nth-child(3) { animation-delay: 0.12s; }
+    .animate-in > *:nth-child(4) { animation-delay: 0.18s; }
+    .animate-in > *:nth-child(n+5) { animation-delay: 0.24s; }
+    .animate-in .board-card, .animate-in .grid-cards > .card {
+      animation: cf-fade-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      animation-delay: calc(var(--i, 0) * 45ms + 0.12s);
+    }
+    .modal-enter { animation: cf-fade-in 0.22s ease both; }
+    .modal-enter .modal-box { animation: cf-pop-in 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+    .toast { animation: cf-slide-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+    .shake { animation: cf-shake 0.45s both !important; }
+
+    .card, .board-card, .tree-item, .cal-chip, .tag-chip, .swatch, button {
+      transition: background-color 0.18s, border-color 0.18s, box-shadow 0.22s, transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.18s;
+    }
+    button:active:not(:disabled) { transform: scale(0.97); }
+    .board-card:hover { transform: translateY(-3px); }
+    .grid-cards > .card[onclick]:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .btn-primary { background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 60%); box-shadow: 0 6px 16px -8px var(--accent); }
+    .btn-primary:hover:not(:disabled) { box-shadow: 0 10px 22px -8px var(--accent); }
+    body, .topbar, .sidebar, .modal-box, .filter-bar, .table-wrap, .cal-cell, .board-col {
+      transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+    }
+    #initial-loader .logo-mark span { animation: cf-bars 0.9s ease-in-out infinite; transform-origin: bottom; }
+    #initial-loader .logo-mark span:nth-child(2) { animation-delay: 0.12s; }
+    #initial-loader .logo-mark span:nth-child(3) { animation-delay: 0.24s; }
+    #initial-loader .logo-mark span:nth-child(4) { animation-delay: 0.36s; }
+    #initial-loader .logo-mark span:nth-child(5) { animation-delay: 0.48s; }
+
+    .auth-screen { position: relative; overflow: hidden; }
+    .auth-screen::before, .auth-screen::after {
+      content: ''; position: absolute; width: 460px; height: 460px; border-radius: 50%;
+      filter: blur(80px); opacity: 0.32; pointer-events: none; z-index: 0;
+      animation: cf-float 16s ease-in-out infinite;
+    }
+    .auth-screen::before { background: var(--accent); top: -140px; left: -120px; }
+    .auth-screen::after { background: var(--st-scheduled); bottom: -160px; right: -140px; animation-delay: -8s; }
+    .auth-card { position: relative; z-index: 1; animation: cf-pop-in 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.1) both; }
+
+    /* ---------- Password fields with show/hide ---------- */
+    .pw-field { position: relative; }
+    .pw-field input { padding-right: 44px !important; }
+    .pw-toggle {
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      border: none; background: transparent; padding: 6px 8px; color: var(--text-soft); line-height: 0; border-radius: 6px;
+    }
+    .pw-toggle:hover:not(:disabled) { background: var(--hover-tint); color: var(--text); }
+    .pw-toggle:active:not(:disabled) { transform: translateY(-50%) scale(0.9); }
+
+    /* ---------- Client colors, tags, settings ---------- */
+    .cdot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; background: var(--border-strong); }
+    .tree-label { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+    .tree-label .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .reorder-btns { display: inline-flex; gap: 3px; flex-shrink: 0; }
+    .reorder-btns button { padding: 2px 7px; font-size: 12px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+    .swatch { width: 28px; height: 28px; border-radius: 50%; padding: 0; border: 2px solid transparent; justify-content: center; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); }
+    .swatch.on { border-color: var(--text); transform: scale(1.12); }
+    .swatch.none { background: var(--surface-subtle); border: 2px dashed var(--border-strong); color: var(--text-soft); font-size: 13px; }
+    .swatch.none.on { border-style: solid; border-color: var(--text); }
+    .tag-chip {
+      --c: #8590a3;
+      display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600;
+      padding: 2px 9px; border-radius: 999px; color: var(--text); white-space: nowrap;
+      background: color-mix(in srgb, var(--c) 16%, transparent);
+      border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+    }
+    .tag-chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+    button.tag-chip { cursor: pointer; padding: 5px 11px; font-size: 12.5px; }
+    button.tag-chip:hover:not(:disabled) { background: color-mix(in srgb, var(--c) 26%, transparent); }
+    button.tag-chip.off { background: transparent; border-color: var(--border-strong); color: var(--text-muted); }
+    .tag-chip .x { opacity: 0.6; font-size: 10px; }
+    .settings-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 22px; align-items: start; max-width: 1080px; }
+    .settings-nav { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 76px; }
+    .settings-nav button { justify-content: flex-start; border: none; background: transparent; font-weight: 600; color: var(--text-muted); padding: 9px 12px; }
+    .settings-nav button.active { background: var(--accent-soft); color: var(--accent); }
+    .settings-card h2 { font-size: 16px; margin: 0 0 4px 0; }
+    .settings-card .lead { color: var(--text-muted); font-size: 13px; margin: 0 0 16px 0; }
+    .avatar-circle { overflow: hidden; flex-shrink: 0; }
+    .avatar-circle img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar-lg { width: 84px; height: 84px; font-size: 28px; box-shadow: var(--shadow-md); }
+    .otp-input { font-size: 30px !important; letter-spacing: 14px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; padding: 12px !important; }
+    .post-meta { font-size: 12px; color: var(--text-soft); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+    .post-meta strong { color: var(--text-muted); font-weight: 600; }
+    .seg { display: inline-flex; flex-wrap: wrap; background: var(--surface-muted); padding: 3px; border-radius: var(--radius); gap: 2px; }
+    .seg button { border: none; background: transparent; font-weight: 600; font-size: 13px; color: var(--text-muted); padding: 7px 12px; }
+    .seg button.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .inv-line { display: grid; grid-template-columns: 1fr 85px 110px 34px; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .menu-btn { display: none; font-size: 18px; padding: 4px 9px; }
+    .sidebar-overlay { display: none; }
+    .info-note { background: var(--accent-soft); color: var(--text); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding: 8px 12px; border-radius: var(--radius); font-size: 12.5px; }
+
     /* Responsive adjustments */
     @media (max-width: 860px) {
       .workspace { flex-direction: column; }
@@ -719,6 +912,7 @@
         border-bottom: 1px solid var(--border);
       }
       .main-area { padding: 16px; }
+      .theme-toggle span { display: none; }
       .editor-split { grid-template-columns: 1fr; }
       .editor-side {
         border-left: none;
@@ -739,6 +933,44 @@
       .cal-chip.st-border-Approved { background: var(--st-approved); }
       .cal-chip.st-border-Scheduled { background: var(--st-scheduled); }
       .cal-chip.st-border-Published { background: var(--st-published); }
+    }
+    @media (max-width: 860px) {
+      .menu-btn { display: inline-flex; }
+      .topbar { padding: 0 10px; gap: 6px; }
+      .topbar-left, .topbar-right { gap: 4px; min-width: 0; }
+      .topbar .brand-title, .topbar .user-name, .topbar .user-role { display: none; }
+      .nav-tab { padding: 6px 8px; }
+      .workspace { display: block; }
+      .sidebar {
+        position: fixed; top: 56px; left: 0; bottom: 0; width: min(300px, 86vw); z-index: 60;
+        transform: translateX(-104%); transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: var(--shadow-lg); border-right: 1px solid var(--border); border-bottom: none; overflow-y: auto;
+      }
+      .sidebar.open { transform: none; }
+      .sidebar-overlay.open { display: block; position: fixed; inset: 56px 0 0 0; background: rgba(0, 0, 0, 0.45); z-index: 55; animation: cf-fade-in 0.2s both; }
+      .view-header > div:last-child { width: 100%; }
+      .view-header .sub-tabs { overflow-x: auto; max-width: 100%; }
+      .filter-bar input, .filter-bar select { flex: 1 1 140px; min-width: 0; }
+      .board-wrap { grid-template-columns: repeat(5, 84%); scroll-snap-type: x mandatory; }
+      .board-col { scroll-snap-align: start; min-height: 300px; }
+      .settings-layout { grid-template-columns: 1fr; }
+      .settings-nav { position: static; flex-direction: row; overflow-x: auto; }
+      .settings-nav button { white-space: nowrap; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar.portal-bar { height: auto; min-height: 56px; flex-wrap: wrap; padding: 8px 12px; row-gap: 8px; }
+    }
+    @media (max-width: 640px) {
+      .modal-backdrop { padding: 0; align-items: stretch; }
+      .modal-box, .modal-box.modal-xl { max-width: none; max-height: none; height: 100%; border-radius: 0; }
+      .modal-footer { flex-wrap: wrap; }
+      .modal-footer > div { display: flex; flex-wrap: wrap; gap: 8px; }
+      .main-area { padding: 14px 12px; }
+      .grid-cards { grid-template-columns: 1fr; }
+      .inv-line { grid-template-columns: 1fr 1fr 34px; }
+      .inv-line > input:first-child { grid-column: 1 / -1; }
+      .auth-card { padding: 22px; }
+      .main-area h1 { font-size: 19px !important; }
+      .toast-container { left: 12px; right: 12px; bottom: 12px; max-width: none; }
     }
   </style>
 </head>
@@ -818,7 +1050,7 @@
     var STATE = {
       mode: 'loading', // 'setup' | 'login' | 'agency' | 'portal'
       clientToken: '',
-      agencyName: 'Client Operations & Content Suite',
+      agencyName: 'Clientflow',
       user: null,
       webAppUrl: '',
       today: '',
@@ -979,9 +1211,135 @@
       return Boolean(inv.dueDate && inv.dueDate < today);
     }
 
+    /* ---------- Theme: Auto (follows device) / Light / Dark, remembered per browser ---------- */
+    var THEME_KEY = 'cocs_theme';
+    function getThemePref() {
+      try {
+        return localStorage.getItem(THEME_KEY) || memoryStorage.theme || 'system';
+      } catch (e) {
+        return memoryStorage.theme || 'system';
+      }
+    }
+    function applyTheme(pref) {
+      if (pref === 'light' || pref === 'dark') document.documentElement.setAttribute('data-theme', pref);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+    function cycleTheme() {
+      var order = ['system', 'light', 'dark'];
+      var next = order[(order.indexOf(getThemePref()) + 1) % order.length];
+      memoryStorage.theme = next;
+      try {
+        if (next === 'system') localStorage.removeItem(THEME_KEY);
+        else localStorage.setItem(THEME_KEY, next);
+      } catch (e) {}
+      applyTheme(next);
+      renderApp();
+    }
+    function themeButtonHtml() {
+      var pref = getThemePref();
+      var icon = pref === 'dark' ? '🌙' : (pref === 'light' ? '☀️' : '🖥️');
+      var label = pref === 'dark' ? 'Dark' : (pref === 'light' ? 'Light' : 'Auto');
+      return '<button type="button" class="btn-ghost btn-sm theme-toggle" onclick="cycleTheme()" title="Theme: ' + label + ' (click to change)" aria-label="Theme: ' + label + '. Click to change.">' +
+        icon + ' <span>' + label + '</span></button>';
+    }
+
+    /* ---------- Small UI helpers ---------- */
+    var CLIENT_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b'];
+    var EYE_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+    var EYE_OFF_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.9 17.9A10 10 0 0 1 12 19c-6.4 0-10-7-10-7a18.4 18.4 0 0 1 5.1-5.9"/><path d="M9.9 4.2A9 9 0 0 1 12 4c6.4 0 10 7 10 7a18.5 18.5 0 0 1-2.2 3.2"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
+
+    function pwField(attrs) {
+      return '<div class="pw-field"><input type="password" ' + attrs + '>' +
+        '<button type="button" class="pw-toggle" onclick="togglePw(this)" aria-label="Show password" title="Show password">' + EYE_ICON + '</button></div>';
+    }
+    function togglePw(btn) {
+      var inp = btn.previousElementSibling;
+      var show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? EYE_OFF_ICON : EYE_ICON;
+      btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      btn.title = btn.getAttribute('aria-label');
+      inp.focus();
+    }
+    function sortClients(list) {
+      return list.slice().sort(function(a, b) {
+        return (a.sortOrder || 0) - (b.sortOrder || 0) ||
+          String(a.createdAt || '').localeCompare(String(b.createdAt || '')) ||
+          a.name.localeCompare(b.name);
+      });
+    }
+    function clientDot(c) {
+      return '<span class="cdot"' + (c && c.color ? ' style="background:' + esc(c.color) + '"' : '') + ' aria-hidden="true"></span>';
+    }
+    function tagColor(name) {
+      var lower = String(name || '').toLowerCase();
+      var tags = STATE.tags || [];
+      for (var i = 0; i < tags.length; i++) {
+        if (tags[i].name.toLowerCase() === lower) return tags[i].color || '';
+      }
+      return '';
+    }
+    function tagChip(name) {
+      var c = tagColor(name);
+      return '<span class="tag-chip"' + (c ? ' style="--c:' + esc(c) + '"' : '') + '>' + esc(name) + '</span>';
+    }
+    function avatarHtml(person, extraCls) {
+      var url = person && person.avatarUrl;
+      return '<span class="avatar-circle' + (extraCls ? ' ' + extraCls : '') + '">' +
+        (url ? '<img src="' + esc(url) + '" alt="">' : esc(initials(person ? person.name : ''))) + '</span>';
+    }
+    function fmtStamp(v) {
+      return String(v || '').replace('T', ' ').substring(0, 16);
+    }
+    function postMetaHtml(p) {
+      var parts = [];
+      if (p.createdBy || p.createdAt) {
+        parts.push('<span>Added by <strong>' + esc(p.createdBy || 'Unknown') + (p.createdByType === 'client' ? ' (client)' : '') + '</strong>' +
+          (p.createdAt ? ' · ' + esc(fmtStamp(p.createdAt)) : '') + '</span>');
+      }
+      if (p.updatedAt && p.updatedAt !== p.createdAt) {
+        parts.push('<span>Last updated' + (p.updatedBy ? ' by <strong>' + esc(p.updatedBy) + '</strong>' : '') + ' · ' + esc(fmtStamp(p.updatedAt)) + '</span>');
+      }
+      return parts.length ? '<div class="post-meta">' + parts.join('') + '</div>' : '';
+    }
+    // Adds the opening animation only when a modal first appears, not on every re-render.
+    function modalEnterCls() {
+      var root = document.getElementById('modal-root');
+      return root && !root.innerHTML ? ' modal-enter' : '';
+    }
+    function canPortalEdit(p) {
+      return STATE.mode === 'portal' && STATE.portalAccess === 'edit' && (!p || ['Scheduled', 'Published'].indexOf(p.status) === -1);
+    }
+
+    /* ---------- Trusted devices (skip the emailed code on browsers that passed it) ---------- */
+    function deviceLabel() {
+      var ua = navigator.userAgent || '';
+      var browser = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+      var os = /iPhone|iPad/.test(ua) ? 'iPhone/iPad' : /Android/.test(ua) ? 'Android' : /Mac OS X/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'device';
+      return browser + ' on ' + os;
+    }
+    function readDeviceMap() {
+      try {
+        return JSON.parse(localStorage.getItem('cocs_devices') || '{}') || {};
+      } catch (e) {
+        return {};
+      }
+    }
+    function getDeviceToken(email) {
+      return readDeviceMap()[String(email || '').trim().toLowerCase()] || '';
+    }
+    function saveDeviceToken(email, tok) {
+      if (!tok || !email) return;
+      var m = readDeviceMap();
+      m[String(email).trim().toLowerCase()] = tok;
+      try {
+        localStorage.setItem('cocs_devices', JSON.stringify(m));
+      } catch (e) {}
+    }
+
     function portalUrl(token) {
       var base = String(STATE.webAppUrl || location.origin).replace(/\/+$/, '');
-      return base + '/?t=' + token;
+      return base + '/app?t=' + token;
     }
 
     /* ========================================================================
@@ -994,6 +1352,7 @@
       } catch (e) {
         STATE.clientToken = '';
       }
+      applyTheme(getThemePref());
       bootFromServer();
     }
 
@@ -1013,7 +1372,7 @@
 
     function applyBootState(data) {
       STATE.mode = data.mode;
-      STATE.agencyName = data.agencyName || 'Client Operations & Content Suite';
+      STATE.agencyName = data.agencyName || 'Clientflow';
       if (data.authError) STATE.authMessage = data.authError;
 
       if (data.mode === 'agency') {
@@ -1024,6 +1383,7 @@
         STATE.settings = data.settings || {};
         STATE.agencyName = STATE.settings.agencyName || STATE.agencyName;
         STATE.team = data.team || [];
+        STATE.tags = data.tags || [];
         STATE.clients = data.clients || [];
         STATE.posts = data.posts || [];
         STATE.comments = data.comments || [];
@@ -1033,12 +1393,14 @@
         STATE.isBilling = Boolean(data.isBilling);
       } else if (data.mode === 'portal') {
         STATE.rootClient = data.rootClient;
+        STATE.portalAccess = data.rootClient && data.rootClient.access === 'edit' ? 'edit' : 'view';
         STATE.clients = data.clients || [];
+        STATE.tags = data.tags || [];
         STATE.posts = data.posts || [];
         STATE.comments = data.comments || [];
         STATE.today = new Date().toISOString().slice(0, 10);
         STATE.calCursor = STATE.today;
-        if (STATE.clients.length > 0 && !STATE.selectedClientId) {
+        if (STATE.clients.length > 0 && !getClient(STATE.selectedClientId)) {
           STATE.selectedClientId = STATE.clients[0].id;
         }
         if (STATE.subView !== 'calendar' && STATE.subView !== 'board') {
@@ -1054,22 +1416,25 @@
     function renderApp() {
       var app = document.getElementById('app');
       if (!app) return;
+      var html;
+      if (STATE.mode === 'setup') html = renderSetupScreen();
+      else if (STATE.mode === 'login') html = renderLoginScreen();
+      else if (STATE.mode === 'code') html = renderCodeScreen();
+      else if (STATE.mode === 'portal') html = renderPortalWorkspace();
+      else if (STATE.mode === 'agency') html = renderAgencyWorkspace();
+      else return;
+      app.innerHTML = html;
 
-      if (STATE.mode === 'setup') {
-        app.innerHTML = renderSetupScreen();
-        return;
-      }
-      if (STATE.mode === 'login') {
-        app.innerHTML = renderLoginScreen();
-        return;
-      }
-      if (STATE.mode === 'portal') {
-        app.innerHTML = renderPortalWorkspace();
-        return;
-      }
-      if (STATE.mode === 'agency') {
-        app.innerHTML = renderAgencyWorkspace();
-        return;
+      // Entrance animation only when the view changes, not on every keystroke re-render.
+      var viewKey = [STATE.mode, STATE.nav, STATE.selectedClientId, STATE.subView, STATE.settingsTab, STATE.calMode].join('|');
+      if (viewKey !== STATE.viewKey) {
+        STATE.viewKey = viewKey;
+        var main = app.querySelector('.main-area');
+        if (main) {
+          main.classList.add('animate-in');
+          var items = main.querySelectorAll('.board-card, .grid-cards > .card');
+          for (var i = 0; i < items.length; i++) items[i].style.setProperty('--i', Math.min(i, 12));
+        }
       }
     }
 
@@ -1081,6 +1446,7 @@
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
           '<div class="logo-mark"><span></span><span></span><span></span><span></span><span></span></div>' +
           '<span class="brand-title">' + esc(STATE.agencyName) + '</span>' +
+          '<span style="margin-left:auto">' + themeButtonHtml() + '</span>' +
         '</div>' +
         '<h1 style="font-size:20px;margin:0 0 6px 0">Set up your workspace</h1>' +
         '<p style="color:var(--text-muted);font-size:13px;margin:0 0 18px 0">Enter the setup code you saved as the <code>SETUP_CODE</code> environment variable on the server to create the first Admin account.</p>' +
@@ -1088,8 +1454,8 @@
           '<div><label class="field-label">Setup code</label><input type="text" id="setup-code" required placeholder="Setup code" autocomplete="off"></div>' +
           '<div><label class="field-label">Your name</label><input type="text" id="setup-name" required placeholder="Alex Morgan"></div>' +
           '<div><label class="field-label">Email address</label><input type="email" id="setup-email" required placeholder="alex@agency.com"></div>' +
-          '<div><label class="field-label">Password (min 8 chars)</label><input type="password" id="setup-pass" required minlength="8"></div>' +
-          '<div><label class="field-label">Confirm password</label><input type="password" id="setup-confirm" required minlength="8"></div>' +
+          '<div><label class="field-label">Password (min 8 chars)</label>' + pwField('id="setup-pass" required minlength="8" autocomplete="new-password"') + '</div>' +
+          '<div><label class="field-label">Confirm password</label>' + pwField('id="setup-confirm" required minlength="8" autocomplete="new-password"') + '</div>' +
           '<button type="submit" class="btn-primary" id="setup-btn" style="justify-content:center;margin-top:6px">Create admin &amp; open workspace</button>' +
         '</form>' +
       '</div></div>';
@@ -1112,6 +1478,7 @@
         email: document.getElementById('setup-email').value,
         password: pass
       }).then(function(data) {
+        saveDeviceToken(document.getElementById('setup-email').value, data.deviceToken);
         setSessionToken(data.sessionToken);
         applyBootState(data);
         showToast('Workspace ready. Welcome!', 'success');
@@ -1130,15 +1497,40 @@
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
           '<div class="logo-mark"><span></span><span></span><span></span><span></span><span></span></div>' +
           '<span class="brand-title">' + esc(STATE.agencyName) + '</span>' +
+          '<span style="margin-left:auto">' + themeButtonHtml() + '</span>' +
         '</div>' +
         '<h1 style="font-size:20px;margin:0 0 6px 0">Sign in to your workspace</h1>' +
-        '<p style="color:var(--text-muted);font-size:13px;margin:0 0 18px 0">Enter your agency team email and password.</p>' +
+        '<p style="color:var(--text-muted);font-size:13px;margin:0 0 18px 0">Enter your team email and password.</p>' +
         banner +
         '<form onsubmit="submitLogin(event)" style="display:flex;flex-direction:column;gap:12px">' +
-          '<div><label class="field-label">Email address</label><input type="email" id="login-email" required autocomplete="username"></div>' +
-          '<div><label class="field-label">Password</label><input type="password" id="login-pass" required autocomplete="current-password"></div>' +
+          '<div><label class="field-label">Email address</label><input type="email" id="login-email" required autocomplete="username" value="' + esc(STATE.lastLoginEmail || '') + '"></div>' +
+          '<div><label class="field-label">Password</label>' + pwField('id="login-pass" required autocomplete="current-password"') + '</div>' +
           '<button type="submit" class="btn-primary" id="login-btn" style="justify-content:center;margin-top:6px">Sign in</button>' +
         '</form>' +
+        '<div style="margin-top:14px;text-align:center;font-size:12.5px"><a href="/" style="color:var(--text-soft)">← Back to home</a></div>' +
+      '</div></div>';
+    }
+
+    function renderCodeScreen() {
+      var l = STATE.login || {};
+      return '<div class="auth-screen"><div class="auth-card">' +
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+          '<div class="logo-mark"><span></span><span></span><span></span><span></span><span></span></div>' +
+          '<span class="brand-title">' + esc(STATE.agencyName) + '</span>' +
+          '<span style="margin-left:auto">' + themeButtonHtml() + '</span>' +
+        '</div>' +
+        '<div style="font-size:34px;line-height:1;margin-bottom:10px" aria-hidden="true">✉️</div>' +
+        '<h1 style="font-size:20px;margin:0 0 6px 0">Check your email</h1>' +
+        '<p style="color:var(--text-muted);font-size:13px;margin:0 0 18px 0">This is a new device, so we sent a 6-digit code to <strong>' + esc(l.emailHint || 'your email') + '</strong>. It expires in 10 minutes.</p>' +
+        '<form onsubmit="submitLoginCode(event)" style="display:flex;flex-direction:column;gap:12px">' +
+          '<input type="text" id="login-code" class="otp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="••••••" aria-label="6-digit code" oninput="this.value=this.value.replace(/\\D/g,\'\').slice(0,6); if(this.value.length===6) submitLoginCode();">' +
+          '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer"><input type="checkbox" id="login-remember" checked> Trust this device for 30 days</label>' +
+          '<button type="submit" class="btn-primary" id="code-btn" style="justify-content:center">Verify &amp; sign in</button>' +
+        '</form>' +
+        '<div style="display:flex;justify-content:space-between;gap:8px;margin-top:14px;flex-wrap:wrap">' +
+          '<button type="button" class="btn-ghost btn-sm" onclick="backToLogin()">← Use another account</button>' +
+          '<button type="button" class="btn-ghost btn-sm" id="resend-btn" onclick="resendLoginCode()">Resend code</button>' +
+        '</div>' +
       '</div></div>';
     }
 
@@ -1146,19 +1538,101 @@
       e.preventDefault();
       STATE.authMessage = '';
       var btn = document.getElementById('login-btn');
+      var email = document.getElementById('login-email').value.trim();
+      STATE.lastLoginEmail = email;
       btn.disabled = true;
       btn.textContent = 'Signing in…';
       callApi('login', {
-        email: document.getElementById('login-email').value,
-        password: document.getElementById('login-pass').value
+        email: email,
+        password: document.getElementById('login-pass').value,
+        deviceToken: getDeviceToken(email),
+        deviceLabel: deviceLabel()
       }).then(function(data) {
+        if (data.needsCode) {
+          STATE.login = { email: email, challengeId: data.challengeId, emailHint: data.emailHint };
+          STATE.mode = 'code';
+          renderApp();
+          var codeInput = document.getElementById('login-code');
+          if (codeInput) codeInput.focus();
+          return;
+        }
         setSessionToken(data.sessionToken);
         applyBootState(data);
       }).catch(function(err) {
         btn.disabled = false;
         btn.textContent = 'Sign in';
+        shakeCard();
         showToast(err.message, 'error');
       });
+    }
+
+    function submitLoginCode(e) {
+      if (e) e.preventDefault();
+      if (STATE.codeBusy || !STATE.login) return;
+      var inp = document.getElementById('login-code');
+      var code = inp ? inp.value.trim() : '';
+      if (code.length !== 6) {
+        showToast('Enter the 6-digit code from your email.', 'error');
+        return;
+      }
+      var remember = document.getElementById('login-remember');
+      var btn = document.getElementById('code-btn');
+      STATE.codeBusy = true;
+      if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+      callApi('verifyLoginCode', {
+        challengeId: STATE.login.challengeId,
+        code: code,
+        rememberDevice: remember ? remember.checked : true,
+        deviceLabel: deviceLabel()
+      }).then(function(data) {
+        STATE.codeBusy = false;
+        saveDeviceToken(STATE.login.email, data.deviceToken);
+        STATE.login = null;
+        setSessionToken(data.sessionToken);
+        applyBootState(data);
+        showToast('Signed in. Welcome back!', 'success');
+      }).catch(function(err) {
+        STATE.codeBusy = false;
+        if (err.code === 'CODE_EXPIRED') {
+          backToLogin(err.message);
+          return;
+        }
+        if (btn) { btn.disabled = false; btn.textContent = 'Verify & sign in'; }
+        if (inp) { inp.value = ''; inp.focus(); }
+        shakeCard();
+        showToast(err.message, 'error');
+      });
+    }
+
+    function resendLoginCode() {
+      if (!STATE.login) return;
+      var btn = document.getElementById('resend-btn');
+      if (btn) btn.disabled = true;
+      callApi('resendLoginCode', { challengeId: STATE.login.challengeId })
+        .then(function(res) {
+          showToast('New code sent to ' + res.emailHint, 'success');
+          setTimeout(function() { var b = document.getElementById('resend-btn'); if (b) b.disabled = false; }, 30000);
+        })
+        .catch(function(err) {
+          if (err.code === 'CODE_EXPIRED') { backToLogin(err.message); return; }
+          if (btn) btn.disabled = false;
+          showToast(err.message, 'error');
+        });
+    }
+
+    function backToLogin(message) {
+      STATE.login = null;
+      STATE.mode = 'login';
+      STATE.authMessage = message || '';
+      renderApp();
+    }
+
+    function shakeCard() {
+      var card = document.querySelector('.auth-card');
+      if (!card) return;
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
     }
 
     /* ========================================================================
@@ -1168,35 +1642,46 @@
       return renderTopBar() +
         '<div class="workspace">' +
           renderSidebar() +
+          '<div class="sidebar-overlay' + (STATE.sidebarOpen ? ' open' : '') + '" onclick="toggleSidebar(false)"></div>' +
           '<main class="main-area">' +
             renderAgencyMainContent() +
           '</main>' +
         '</div>';
     }
 
+    function toggleSidebar(force) {
+      STATE.sidebarOpen = typeof force === 'boolean' ? force : !STATE.sidebarOpen;
+      var sb = document.querySelector('.sidebar');
+      var ov = document.querySelector('.sidebar-overlay');
+      if (sb) sb.classList.toggle('open', STATE.sidebarOpen);
+      if (ov) ov.classList.toggle('open', STATE.sidebarOpen);
+    }
+
     function renderTopBar() {
       return '<header class="topbar">' +
         '<div class="topbar-left">' +
+          '<button class="btn-ghost menu-btn" onclick="toggleSidebar()" aria-label="Show clients">☰</button>' +
           '<div class="logo-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>' +
           '<span class="brand-title">' + esc(STATE.agencyName) + '</span>' +
-          '<button class="nav-tab ' + (STATE.nav === 'overview' ? 'active' : '') + '" onclick="switchNav(\'overview\')">Overview</button>' +
-          (STATE.isAdmin ? '<button class="nav-tab ' + (STATE.nav === 'team' ? 'active' : '') + '" onclick="switchNav(\'team\')">Team &amp; settings</button>' : '') +
+          '<button class="nav-tab ' + (STATE.nav === 'overview' || STATE.nav === 'client' ? 'active' : '') + '" onclick="switchNav(\'overview\')">Overview</button>' +
+          '<button class="nav-tab ' + (STATE.nav === 'settings' ? 'active' : '') + '" onclick="openSettings(\'profile\')">Settings</button>' +
         '</div>' +
         '<div class="topbar-right">' +
-          '<button class="btn-ghost" onclick="openAccountModal()" title="Account settings">' +
-            '<span class="avatar-circle">' + esc(initials(STATE.user.name)) + '</span>' +
-            '<span style="font-weight:600">' + esc(STATE.user.name) + '</span>' +
-            '<span style="color:var(--text-soft);font-size:12px">(' + esc(STATE.user.role) + ')</span>' +
+          themeButtonHtml() +
+          '<button class="btn-ghost" onclick="openSettings(\'profile\')" title="Your profile">' +
+            avatarHtml(STATE.user) +
+            '<span class="user-name" style="font-weight:600">' + esc(STATE.user.name) + '</span>' +
+            '<span class="user-role" style="color:var(--text-soft);font-size:12px">(' + esc(STATE.user.role) + ')</span>' +
           '</button>' +
         '</div>' +
       '</header>';
     }
 
     function renderSidebar() {
-      var parents = STATE.clients.filter(function(c) {
+      var reorder = Boolean(STATE.reorderMode && STATE.isBilling);
+      var parents = sortClients(STATE.clients.filter(function(c) {
         return !c.parentId && (STATE.showArchived || !c.archived);
-      });
-      parents.sort(function(a, b) { return a.name.localeCompare(b.name); });
+      }));
 
       var treeHtml = '';
       if (parents.length === 0) {
@@ -1204,37 +1689,29 @@
       } else {
         for (var i = 0; i < parents.length; i++) {
           var p = parents[i];
-          var subs = STATE.clients.filter(function(s) {
+          var subs = sortClients(STATE.clients.filter(function(s) {
             return s.parentId === p.id && (STATE.showArchived || !s.archived);
-          });
-          subs.sort(function(a, b) { return a.name.localeCompare(b.name); });
-
-          var pActive = (STATE.nav === 'client' && STATE.selectedClientId === p.id) ? 'active' : '';
-          treeHtml += '<div class="tree-parent-group">' +
-            '<button class="tree-item ' + pActive + '" onclick="selectClient(\'' + esc(p.id) + '\')">' +
-              '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.name) + (p.archived ? ' (Archived)' : '') + '</span>' +
-            '</button>' +
-            '<div class="tree-sub-list">';
-
+          }));
+          treeHtml += '<div class="tree-parent-group">' + treeItemHtml(p, false, reorder, i, parents.length) + '<div class="tree-sub-list">';
           for (var j = 0; j < subs.length; j++) {
-            var s = subs[j];
-            var sActive = (STATE.nav === 'client' && STATE.selectedClientId === s.id) ? 'active' : '';
-            treeHtml += '<button class="tree-item tree-sub-item ' + sActive + '" onclick="selectClient(\'' + esc(s.id) + '\')">' +
-              '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(s.name) + (s.archived ? ' (Archived)' : '') + '</span>' +
-            '</button>';
+            treeHtml += treeItemHtml(subs[j], true, reorder, j, subs.length);
           }
-          if (STATE.isBilling && !p.archived) {
+          if (STATE.isBilling && !p.archived && !reorder) {
             treeHtml += '<button class="tree-item tree-sub-item" style="color:var(--text-soft);font-size:12.5px" onclick="openClientModal(null, \'' + esc(p.id) + '\')">+ Add sub-client</button>';
           }
           treeHtml += '</div></div>';
         }
       }
 
-      return '<aside class="sidebar">' +
+      return '<aside class="sidebar' + (STATE.sidebarOpen ? ' open' : '') + '">' +
         '<div class="sidebar-section-header">' +
           '<span>Clients</span>' +
-          (STATE.isBilling ? '<button class="btn-sm" onclick="openClientModal(null, \'\')">+ Add client</button>' : '') +
+          '<div style="display:flex;gap:6px">' +
+            (STATE.isBilling && parents.length > 0 ? '<button class="btn-sm ' + (reorder ? 'btn-primary' : '') + '" onclick="toggleReorder()">' + (reorder ? 'Done' : '↕ Reorder') + '</button>' : '') +
+            (STATE.isBilling && !reorder ? '<button class="btn-sm" onclick="openClientModal(null, \'\')">+ Add</button>' : '') +
+          '</div>' +
         '</div>' +
+        (reorder ? '<div class="info-note">Use the arrows to change the order everyone sees.</div>' : '') +
         '<div class="client-tree">' + treeHtml + '</div>' +
         '<div style="border-top:1px solid var(--border);padding-top:10px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--text-muted)">' +
           '<label style="display:flex;align-items:center;gap:6px;cursor:pointer">' +
@@ -1244,14 +1721,67 @@
       '</aside>';
     }
 
+    function treeItemHtml(c, isSub, reorder, idx, count) {
+      var label = '<span class="tree-label">' + clientDot(c) + '<span class="nm">' + esc(c.name) + (c.archived ? ' (Archived)' : '') + '</span></span>';
+      var cls = 'tree-item' + (isSub ? ' tree-sub-item' : '');
+      if (reorder) {
+        return '<div class="' + cls + '">' + label +
+          '<span class="reorder-btns">' +
+            '<button class="btn-sm" onclick="moveClient(\'' + esc(c.id) + '\', -1)" ' + (idx === 0 ? 'disabled' : '') + ' aria-label="Move ' + esc(c.name) + ' up">↑</button>' +
+            '<button class="btn-sm" onclick="moveClient(\'' + esc(c.id) + '\', 1)" ' + (idx === count - 1 ? 'disabled' : '') + ' aria-label="Move ' + esc(c.name) + ' down">↓</button>' +
+          '</span></div>';
+      }
+      var active = (STATE.nav === 'client' && STATE.selectedClientId === c.id) ? ' active' : '';
+      return '<button class="' + cls + active + '" onclick="selectClient(\'' + esc(c.id) + '\')">' + label + '</button>';
+    }
+
+    function toggleReorder() {
+      STATE.reorderMode = !STATE.reorderMode;
+      renderApp();
+    }
+
+    function moveClient(id, dir) {
+      var c = getClient(id);
+      if (!c) return;
+      var sameGroup = function(x) { return (x.parentId || '') === (c.parentId || ''); };
+      var visible = sortClients(STATE.clients.filter(function(x) { return sameGroup(x) && (STATE.showArchived || !x.archived); }));
+      var idx = visible.indexOf(c);
+      var target = idx + dir;
+      if (idx === -1 || target < 0 || target >= visible.length) return;
+      visible.splice(idx, 1);
+      visible.splice(target, 0, c);
+      var hidden = sortClients(STATE.clients.filter(function(x) { return sameGroup(x) && visible.indexOf(x) === -1; }));
+      var ordered = visible.concat(hidden);
+      for (var i = 0; i < ordered.length; i++) ordered[i].sortOrder = i;
+      renderApp();
+      callApi('reorderClients', { ids: ordered.map(function(x) { return x.id; }) })
+        .catch(function(err) {
+          showToast(err.message, 'error');
+          callApi('boot', {}).then(applyBootState);
+        });
+    }
+
     function switchNav(nav) {
       STATE.nav = nav;
+      STATE.sidebarOpen = false;
+      renderApp();
+    }
+
+    function openSettings(tab) {
+      STATE.nav = 'settings';
+      STATE.settingsTab = tab || 'profile';
+      STATE.sidebarOpen = false;
+      PROFILE_DRAFT = null;
+      DRAFT_TAGS = null;
+      DRAFT_TEAM = null;
+      closeModal(true);
       renderApp();
     }
 
     function selectClient(clientId) {
       STATE.nav = 'client';
       STATE.selectedClientId = clientId;
+      STATE.sidebarOpen = false;
       if (!STATE.isBilling && STATE.subView === 'invoices') {
         STATE.subView = 'calendar';
       }
@@ -1264,8 +1794,8 @@
     }
 
     function renderAgencyMainContent() {
-      if (STATE.nav === 'team' && STATE.isAdmin) {
-        return renderTeamAndSettingsView();
+      if (STATE.nav === 'settings') {
+        return renderSettingsView();
       }
       if (STATE.nav === 'client' && STATE.selectedClientId) {
         var client = getClient(STATE.selectedClientId);
@@ -1335,7 +1865,7 @@
           var rp = inReviewPosts[r];
           var rc = activeClientMap[rp.clientId];
           html += '<tr class="clickable" onclick="jumpToPost(\'' + esc(rp.clientId) + '\', \'' + esc(rp.id) + '\')">' +
-            '<td style="font-weight:600">' + esc(rc ? rc.name : '') + '</td>' +
+            '<td style="font-weight:600;white-space:nowrap">' + (rc ? clientDot(rc) + ' ' + esc(rc.name) : '') + '</td>' +
             '<td>' + esc((rp.text || '(No copy)').substring(0, 90)) + '</td>' +
             '<td>' + esc(rp.platforms.join(', ') || '—') + '</td>' +
             '<td style="white-space:nowrap">' + esc((rp.date || 'Unscheduled') + (rp.time ? ' ' + rp.time : '')) + '</td>' +
@@ -1358,7 +1888,7 @@
           var uc = activeClientMap[up.clientId];
           html += '<tr class="clickable" onclick="jumpToPost(\'' + esc(up.clientId) + '\', \'' + esc(up.id) + '\')">' +
             '<td style="white-space:nowrap;font-weight:600">' + esc(up.date + (up.time ? ' ' + up.time : '')) + '</td>' +
-            '<td>' + esc(uc ? uc.name : '') + '</td>' +
+            '<td style="white-space:nowrap">' + (uc ? clientDot(uc) + ' ' + esc(uc.name) : '') + '</td>' +
             '<td><span class="status-pill st-bg-' + statusClass(up.status) + '">' + esc(up.status) + '</span></td>' +
             '<td>' + esc((up.text || '(No copy)').substring(0, 80)) + '</td>' +
             '<td>' + esc(up.platforms.join(', ') || '—') + '</td>' +
@@ -1384,7 +1914,7 @@
             var oc = activeClientMap[oInv.clientId];
             html += '<tr class="clickable" onclick="jumpToClientInvoices(\'' + esc(oInv.clientId) + '\')">' +
               '<td style="font-weight:600">' + esc(oInv.number) + '</td>' +
-              '<td>' + esc(oc ? oc.name : '') + '</td>' +
+              '<td style="white-space:nowrap">' + (oc ? clientDot(oc) + ' ' + esc(oc.name) : '') + '</td>' +
               '<td style="color:var(--danger);font-weight:600">' + esc(oInv.dueDate) + '</td>' +
               '<td style="font-weight:600">' + esc(formatCurrency(computeInvoiceTotals(oInv).total, oInv.currency)) + '</td>' +
             '</tr>';
@@ -1418,12 +1948,12 @@
       var subs = STATE.clients.filter(function(c) {
         return c.parentId === parent.id && (STATE.showArchived || !c.archived);
       });
-      subs.sort(function(a, b) { return a.name.localeCompare(b.name); });
+      subs = sortClients(subs);
 
       var html = '<div class="view-header">' +
         '<div>' +
           '<div style="font-size:12px;color:var(--text-soft);font-weight:600;text-transform:uppercase">Parent Client</div>' +
-          '<h1 style="font-size:22px;margin:2px 0 0 0">' + esc(parent.name) + (parent.archived ? ' <span class="mini-chip">Archived</span>' : '') + '</h1>' +
+          '<h1 style="font-size:22px;margin:2px 0 0 0;display:flex;align-items:center;gap:10px">' + clientDot(parent) + esc(parent.name) + (parent.archived ? ' <span class="mini-chip">Archived</span>' : '') + '</h1>' +
         '</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
           (STATE.isBilling ? '<button onclick="openShareModal(\'' + esc(parent.id) + '\')">Share portal link</button>' : '') +
@@ -1449,7 +1979,7 @@
           }
           html += '<div class="card" style="cursor:pointer" onclick="selectClient(\'' + esc(sub.id) + '\')">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-              '<strong style="font-size:16px">' + esc(sub.name) + '</strong>' +
+              '<strong style="font-size:16px;display:flex;align-items:center;gap:8px">' + clientDot(sub) + esc(sub.name) + '</strong>' +
               (sub.archived ? '<span class="mini-chip">Archived</span>' : '') +
             '</div>' +
             '<div style="display:flex;flex-wrap:wrap;gap:6px">';
@@ -1529,7 +2059,7 @@
             (parent ? '<a href="javascript:void(0)" onclick="selectClient(\'' + esc(parent.id) + '\')" style="color:var(--text-soft);text-decoration:none">' + esc(parent.name) + '</a> / ' : '') +
             'Sub-client' +
           '</div>' +
-          '<h1 style="font-size:22px;margin:2px 0 0 0">' + esc(client.name) + (client.archived ? ' <span class="mini-chip">Archived</span>' : '') + '</h1>' +
+          '<h1 style="font-size:22px;margin:2px 0 0 0;display:flex;align-items:center;gap:10px">' + clientDot(client) + esc(client.name) + (client.archived ? ' <span class="mini-chip">Archived</span>' : '') + '</h1>' +
         '</div>' +
         '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' +
           '<div class="sub-tabs">' +
@@ -1769,7 +2299,7 @@
         html += '<div class="cal-cell ' + (cell.outside ? 'outside ' : '') + (isToday ? 'today' : '') + '"' + dragAttrs + '>' +
           '<div class="cal-cell-top">' +
             '<span class="cal-day-num ' + (isToday ? 'is-today' : '') + '">' + cell.dayNum + '</span>' +
-            (!isPortal ? '<button class="cal-add-btn" title="Create post on ' + esc(cell.dateStr) + '" onclick="openPostModal(null, \'' + esc(cell.dateStr) + '\')">+</button>' : '') +
+            (!isPortal || canPortalEdit(null) ? '<button class="cal-add-btn" title="Create post on ' + esc(cell.dateStr) + '" onclick="openPostModal(null, \'' + esc(cell.dateStr) + '\')">+</button>' : '') +
           '</div>';
 
         for (var dp = 0; dp < dayPosts.length; dp++) {
@@ -1862,13 +2392,13 @@
               html += '<span class="mini-chip" style="font-weight:600">' + esc(p.platforms[pl]) + '</span>';
             }
             for (var tg = 0; tg < p.tags.length; tg++) {
-              html += '<span class="mini-chip">#' + esc(p.tags[tg]) + '</span>';
+              html += tagChip(p.tags[tg]);
             }
             html += '</div>';
           }
 
           html += '<div style="display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--text-soft);margin-top:2px">' +
-            '<span>' + esc((p.date || 'No date') + (p.time ? ' ' + p.time : '')) + '</span>' +
+            '<span>' + esc((p.date || 'No date') + (p.time ? ' ' + p.time : '')) + (p.createdBy ? ' · ' + esc(p.createdBy) : '') + '</span>' +
             '<div style="display:flex;align-items:center;gap:8px">' +
               (commentCounts[p.id] ? '<span>💬 ' + commentCounts[p.id] + '</span>' : '') +
               (!isPortal && p.assignee ? '<span class="avatar-circle" title="' + esc(p.assignee) + '">' + esc(initials(p.assignee)) + '</span>' : '') +
@@ -1910,13 +2440,13 @@
         return '<div class="card" style="color:var(--text-soft);text-align:center;padding:32px">No posts match your current filters.</div>';
       }
       var html = '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-        '<th style="width:52px">Media</th><th>Copy</th><th>Status</th><th>Platforms</th><th>Tags</th><th>Date</th><th>Time</th><th>Assignee</th>' +
+        '<th style="width:52px">Media</th><th>Copy</th><th>Status</th><th>Platforms</th><th>Tags</th><th>Date</th><th>Time</th><th>Assignee</th><th>Added by</th>' +
       '</tr></thead><tbody>';
 
       for (var i = 0; i < posts.length; i++) {
         var p = posts[i];
         var thumb = (p.assets && p.assets.length > 0 && p.assets[0].thumbUrl)
-          ? '<img src="' + esc(p.assets[0].thumbUrl) + '" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:6px;background:#e2e8f0">'
+          ? '<img src="' + esc(p.assets[0].thumbUrl) + '" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:6px;background:var(--surface-muted)">'
           : (p.assets && p.assets.length > 0
             ? '<div style="width:38px;height:38px;border-radius:6px;background:#0f172a;color:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:11px">▶</div>'
             : '<div style="width:38px;height:38px;border-radius:6px;background:var(--surface-subtle);border:1px solid var(--border)"></div>');
@@ -1926,10 +2456,11 @@
           '<td style="max-width:320px"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(p.text || '(No copy)') + '</div></td>' +
           '<td><span class="status-pill st-bg-' + statusClass(p.status) + '">' + esc(p.status) + '</span></td>' +
           '<td>' + esc(p.platforms.join(', ') || '—') + '</td>' +
-          '<td>' + esc(p.tags.join(', ') || '—') + '</td>' +
+          '<td><div class="chip-row">' + (p.tags.length ? p.tags.map(tagChip).join('') : '—') + '</div></td>' +
           '<td style="white-space:nowrap">' + esc(p.date || '—') + '</td>' +
           '<td style="white-space:nowrap">' + esc(p.time || '—') + '</td>' +
           '<td>' + esc(tm ? tm.name : (p.assignee || 'Unassigned')) + '</td>' +
+          '<td style="white-space:nowrap">' + esc(p.createdBy ? p.createdBy + (p.createdByType === 'client' ? ' (client)' : '') : '—') + '</td>' +
         '</tr>';
       }
       html += '</tbody></table></div>';
@@ -1942,10 +2473,6 @@
     var EDITOR_POST = null;
 
     function openPostModal(postId, defaultDate) {
-      if (STATE.mode === 'portal') {
-        openPortalPostModal(postId);
-        return;
-      }
       var existing = null;
       if (postId) {
         for (var i = 0; i < STATE.posts.length; i++) {
@@ -1954,6 +2481,11 @@
             break;
           }
         }
+        if (!existing) return;
+      }
+      if (STATE.mode === 'portal' && !canPortalEdit(existing)) {
+        if (existing) openPortalPostModal(postId);
+        return;
       }
 
       EDITOR_POST = existing ? JSON.parse(JSON.stringify(existing)) : {
@@ -1974,23 +2506,27 @@
       STATE.activeModal = 'postEditor';
       STATE.sideTab = 'comments';
       STATE.confirmDeletePost = false;
+      STATE.sidebarOpen = false;
       renderPostEditorModal();
     }
 
     function renderPostEditorModal() {
       var p = EDITOR_POST;
+      var portal = STATE.mode === 'portal';
       var client = getClient(p.clientId);
-      var parent = (client && client.parentId) ? getClient(client.parentId) : null;
+      var parent = (!portal && client && client.parentId) ? getClient(client.parentId) : null;
       var notifyEmail = (client && client.notifyEmail) ? client.notifyEmail : (parent && parent.notifyEmail ? parent.notifyEmail : '');
 
       var statuses = ['Draft', 'In Review', 'Approved', 'Scheduled', 'Published'];
       var platforms = ['Instagram', 'Facebook', 'LinkedIn', 'TikTok', 'YouTube', 'X'];
 
-      var reviewHint = '';
-      if (p.status === 'In Review') {
-        reviewHint = notifyEmail
-          ? '<div style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:8px 12px;border-radius:var(--radius);font-size:12.5px;margin-top:8px">Saving in <strong>In Review</strong> will email the client portal link to <strong>' + esc(notifyEmail) + '</strong>.</div>'
-          : '<div style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:8px 12px;border-radius:var(--radius);font-size:12.5px;margin-top:8px">No client notification email is set for ' + esc(client ? client.name : 'this client') + '. You can still share the portal link manually.</div>';
+      var hint = '';
+      if (portal && !p.id) {
+        hint = '<div class="info-note">Your post is saved as a <strong>Draft</strong> and the agency team is notified by email.</div>';
+      } else if (!portal && p.status === 'In Review') {
+        hint = notifyEmail
+          ? '<div style="background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);padding:8px 12px;border-radius:var(--radius);font-size:12.5px">Saving in <strong>In Review</strong> will email the client portal link to <strong>' + esc(notifyEmail) + '</strong>.</div>'
+          : '<div style="background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);padding:8px 12px;border-radius:var(--radius);font-size:12.5px">No client notification email is set for ' + esc(client ? client.name : 'this client') + '. You can still share the portal link manually.</div>';
       }
 
       var assetsHtml = '';
@@ -2014,11 +2550,11 @@
       }
 
       var publishedHtml = '';
-      if (p.status === 'Published') {
+      if (!portal && p.status === 'Published') {
         var m = p.metrics || {};
-        publishedHtml = '<div style="background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:12px">' +
+        publishedHtml = '<div style="background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:12px">' +
           '<div style="margin-bottom:10px"><label class="field-label">Live post URL</label><input type="url" value="' + esc(p.liveUrl) + '" placeholder="https://instagram.com/p/..." oninput="syncEditorField(\'liveUrl\', this.value)"></div>' +
-          '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' +
+          '<div class="grid-4">' +
             '<div><label class="field-label">Reach</label><input type="number" value="' + esc(m.reach) + '" oninput="syncEditorMetric(\'reach\', this.value)"></div>' +
             '<div><label class="field-label">Likes</label><input type="number" value="' + esc(m.likes) + '" oninput="syncEditorMetric(\'likes\', this.value)"></div>' +
             '<div><label class="field-label">Comments</label><input type="number" value="' + esc(m.comments) + '" oninput="syncEditorMetric(\'comments\', this.value)"></div>' +
@@ -2027,18 +2563,50 @@
         '</div>';
       }
 
+      var brandPicker = '';
+      if (portal && !p.id && STATE.clients.length > 1) {
+        brandPicker = '<div><label class="field-label">Brand</label><select onchange="syncEditorField(\'clientId\', this.value)">' +
+          STATE.clients.map(function(c) { return '<option value="' + esc(c.id) + '" ' + (c.id === p.clientId ? 'selected' : '') + '>' + esc(c.name) + '</option>'; }).join('') +
+        '</select></div>';
+      }
+
+      var statusField = portal
+        ? '<div><label class="field-label">Status</label><div style="padding:7px 0"><span class="status-pill st-bg-' + statusClass(p.status) + '">' + esc(p.status) + '</span></div></div>'
+        : '<div><label class="field-label">Status</label><select onchange="syncEditorField(\'status\', this.value);renderPostEditorModal()">' +
+            statuses.map(function(s) { return '<option value="' + esc(s) + '" ' + (p.status === s ? 'selected' : '') + '>' + esc(s) + '</option>'; }).join('') +
+          '</select></div>' +
+          '<div><label class="field-label">Assignee</label><select onchange="syncEditorField(\'assignee\', this.value)">' +
+            '<option value="">Unassigned</option>' +
+            STATE.team.map(function(tm) { return '<option value="' + esc(tm.email) + '" ' + (p.assignee === tm.email ? 'selected' : '') + '>' + esc(tm.name) + '</option>'; }).join('') +
+          '</select></div>';
+
+      var decisionBox = '';
+      if (portal && p.id && p.status === 'In Review') {
+        decisionBox = '<div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--radius);padding:12px">' +
+          '<div style="font-weight:700;margin-bottom:8px;color:var(--warn-text)">This post is ready for your approval</div>' +
+          '<textarea id="portal-decision-comment" rows="2" placeholder="Optional note (required if requesting changes)…" style="margin-bottom:8px;min-height:60px"></textarea>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+            '<button type="button" class="btn-primary" style="background:var(--st-published);border-color:var(--st-published)" onclick="submitPortalDecision(\'' + esc(p.id) + '\', \'approve\')">Approve post</button>' +
+            '<button type="button" onclick="submitPortalDecision(\'' + esc(p.id) + '\', \'changes\')">Request changes</button>' +
+          '</div>' +
+        '</div>';
+      }
+
       var sidePanelHtml = '';
       if (p.id) {
         var postComments = STATE.comments.filter(function(c) { return c.postId === p.id; });
-        var postActivity = STATE.activity.filter(function(ac) { return ac.postId === p.id; }).slice().reverse();
+        var postActivity = portal ? [] : STATE.activity.filter(function(ac) { return ac.postId === p.id; }).slice().reverse();
+        var sideTab = portal ? 'comments' : STATE.sideTab;
 
         sidePanelHtml = '<div class="editor-side">' +
-          '<div class="sub-tabs" style="margin-bottom:12px">' +
-            '<button type="button" class="sub-tab ' + (STATE.sideTab === 'comments' ? 'active' : '') + '" onclick="STATE.sideTab=\'comments\';renderPostEditorModal()">Comments (' + postComments.length + ')</button>' +
-            '<button type="button" class="sub-tab ' + (STATE.sideTab === 'history' ? 'active' : '') + '" onclick="STATE.sideTab=\'history\';renderPostEditorModal()">History (' + postActivity.length + ')</button>' +
-          '</div>';
+          (portal
+            ? '<h4 style="margin:0 0 10px 0">Comments (' + postComments.length + ')</h4>'
+            : '<div class="sub-tabs" style="margin-bottom:12px">' +
+                '<button type="button" class="sub-tab ' + (sideTab === 'comments' ? 'active' : '') + '" onclick="STATE.sideTab=\'comments\';renderPostEditorModal()">Comments (' + postComments.length + ')</button>' +
+                '<button type="button" class="sub-tab ' + (sideTab === 'history' ? 'active' : '') + '" onclick="STATE.sideTab=\'history\';renderPostEditorModal()">History (' + postActivity.length + ')</button>' +
+              '</div>');
 
-        if (STATE.sideTab === 'comments') {
+        if (sideTab === 'comments') {
           sidePanelHtml += '<div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px">';
           if (postComments.length === 0) {
             sidePanelHtml += '<div style="color:var(--text-soft);font-size:13px">No comments yet.</div>';
@@ -2046,9 +2614,9 @@
             for (var cm = 0; cm < postComments.length; cm++) {
               var cObj = postComments[cm];
               sidePanelHtml += '<div style="background:var(--surface-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:13px">' +
-                '<div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-soft);margin-bottom:4px">' +
+                '<div style="display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--text-soft);margin-bottom:4px">' +
                   '<strong>' + esc(cObj.author) + ' (' + esc(cObj.role) + ')</strong>' +
-                  '<span>' + esc(cObj.createdAt.replace('T', ' ').substring(0, 16)) + '</span>' +
+                  '<span>' + esc(fmtStamp(cObj.createdAt)) + '</span>' +
                 '</div>' +
                 '<div style="white-space:pre-wrap">' + esc(cObj.text) + '</div>' +
               '</div>';
@@ -2066,7 +2634,7 @@
             sidePanelHtml += '<div style="font-size:12.5px;border-bottom:1px solid var(--border);padding-bottom:6px">' +
               '<div><strong>' + esc(act.actor) + '</strong> ' + esc(act.action) + '</div>' +
               (act.details ? '<div style="color:var(--text-muted)">' + esc(act.details) + '</div>' : '') +
-              '<div style="font-size:11px;color:var(--text-soft)">' + esc(act.createdAt.replace('T', ' ').substring(0, 16)) + '</div>' +
+              '<div style="font-size:11px;color:var(--text-soft)">' + esc(fmtStamp(act.createdAt)) + '</div>' +
             '</div>';
           }
           sidePanelHtml += '</div>';
@@ -2074,29 +2642,37 @@
         sidePanelHtml += '</div>';
       }
 
+      var canDelete = p.id && (!portal || p.createdByType === 'client');
+      var title = p.id ? 'Edit post' : (portal ? 'Add a post' : 'Create post');
+
       var root = document.getElementById('modal-root');
-      root.innerHTML = '<div class="modal-backdrop" onclick="if(event.target===this)closeModal(false)">' +
+      root.innerHTML = '<div class="modal-backdrop' + modalEnterCls() + '" onclick="if(event.target===this)closeModal(false)">' +
         '<div class="modal-box ' + (p.id ? 'modal-xl' : '') + '">' +
           '<div class="modal-header">' +
-            '<h3>' + (p.id ? 'Edit post' : 'Create post') + (client ? ' — ' + esc(client.name) : '') + '</h3>' +
-            '<button type="button" class="btn-sm btn-ghost" onclick="closeModal(true)">✕</button>' +
+            '<div style="display:flex;flex-direction:column;gap:4px;min-width:0">' +
+              '<h3 style="display:flex;align-items:center;gap:8px">' + (client ? clientDot(client) : '') + title + (client ? ' — ' + esc(client.name) : '') + '</h3>' +
+              (p.id ? postMetaHtml(p) : '') +
+            '</div>' +
+            '<button type="button" class="btn-sm btn-ghost" onclick="closeModal(true)" aria-label="Close">✕</button>' +
           '</div>' +
           '<div class="modal-body">' +
             '<div class="' + (p.id ? 'editor-split' : '') + '">' +
-              '<div style="display:flex;flex-direction:column;gap:12px">' +
+              '<div style="display:flex;flex-direction:column;gap:14px">' +
+                decisionBox +
+                brandPicker +
                 '<div>' +
                   '<label class="field-label">Post copy</label>' +
                   '<textarea rows="4" placeholder="Write your post caption, hooks, and hashtags…" oninput="syncEditorField(\'text\', this.value)">' + esc(p.text) + '</textarea>' +
                 '</div>' +
                 '<div>' +
-                  '<label class="field-label">Media assets (carousel order — max 20 MB per image/video)</label>' +
+                  '<label class="field-label">Media (carousel order — max 20 MB per image/video)</label>' +
                   '<div class="dropzone" id="asset-dropzone" onclick="document.getElementById(\'asset-file-input\').click()" ondragover="event.preventDefault();this.classList.add(\'drag-active\')" ondragleave="this.classList.remove(\'drag-active\')" ondrop="handleAssetDrop(event)">' +
                     '<input type="file" id="asset-file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleAssetFiles(this.files)">' +
-                    '<div id="upload-status-label" style="font-weight:600;color:var(--text-muted)">Click to upload, drag files here, or press Ctrl/Cmd+V to paste an image</div>' +
+                    '<div id="upload-status-label" style="font-weight:600;color:var(--text-muted)">Tap to upload, drag files here, or paste an image</div>' +
                   '</div>' +
                   '<div style="display:flex;gap:6px;margin-top:8px">' +
                     '<input type="text" id="drive-link-input" placeholder="Or paste a Google Drive link (shared as &quot;Anyone with the link&quot;)…">' +
-                    '<button type="button" class="btn-sm" onclick="addDriveLinkAsset()">Add Drive file</button>' +
+                    '<button type="button" class="btn-sm" onclick="addDriveLinkAsset()" style="white-space:nowrap">Add link</button>' +
                   '</div>' +
                   assetsHtml +
                 '</div>' +
@@ -2105,26 +2681,17 @@
                   '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
                     platforms.map(function(pl) {
                       var active = p.platforms.indexOf(pl) !== -1;
-                      return '<button type="button" class="btn-sm ' + (active ? 'btn-primary' : '') + '" onclick="toggleEditorPlatform(\'' + esc(pl) + '\')">' + esc(pl) + '</button>';
+                      return '<button type="button" class="btn-sm ' + (active ? 'btn-primary' : '') + '" aria-pressed="' + active + '" onclick="toggleEditorPlatform(\'' + esc(pl) + '\')">' + esc(pl) + '</button>';
                     }).join('') +
                   '</div>' +
                 '</div>' +
                 '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">' +
-                  '<div><label class="field-label">Status</label><select onchange="syncEditorField(\'status\', this.value);renderPostEditorModal()">' +
-                    statuses.map(function(s) { return '<option value="' + esc(s) + '" ' + (p.status === s ? 'selected' : '') + '>' + esc(s) + '</option>'; }).join('') +
-                  '</select></div>' +
-                  '<div><label class="field-label">Assignee</label><select onchange="syncEditorField(\'assignee\', this.value)">' +
-                    '<option value="">Unassigned</option>' +
-                    STATE.team.map(function(tm) { return '<option value="' + esc(tm.email) + '" ' + (p.assignee === tm.email ? 'selected' : '') + '>' + esc(tm.name) + '</option>'; }).join('') +
-                  '</select></div>' +
+                  statusField +
                   '<div><label class="field-label">Date</label><input type="date" value="' + esc(p.date) + '" oninput="syncEditorField(\'date\', this.value)"></div>' +
                   '<div><label class="field-label">Time</label><input type="time" value="' + esc(p.time) + '" oninput="syncEditorField(\'time\', this.value)"></div>' +
                 '</div>' +
-                '<div>' +
-                  '<label class="field-label">Tags (comma-separated)</label>' +
-                  '<input type="text" value="' + esc(p.tags.join(', ')) + '" placeholder="launch, q4, reel" oninput="syncEditorTags(this.value)">' +
-                '</div>' +
-                reviewHint +
+                '<div>' + renderTagPicker(p) + '</div>' +
+                hint +
                 publishedHtml +
               '</div>' +
               sidePanelHtml +
@@ -2132,17 +2699,77 @@
           '</div>' +
           '<div class="modal-footer">' +
             '<div>' +
-              (p.id ? (STATE.confirmDeletePost
+              (canDelete ? (STATE.confirmDeletePost
                 ? '<button type="button" class="btn-danger" onclick="confirmDeletePostNow()">Click again to permanently delete</button>'
                 : '<button type="button" style="color:var(--danger)" onclick="STATE.confirmDeletePost=true;renderPostEditorModal()">Delete post</button>') : '') +
             '</div>' +
             '<div style="display:flex;gap:8px">' +
               '<button type="button" onclick="closeModal(true)">Cancel</button>' +
-              '<button type="button" class="btn-primary" id="save-post-btn" onclick="saveEditorPost()">Save post</button>' +
+              '<button type="button" class="btn-primary" id="save-post-btn" onclick="saveEditorPost()">' + (portal && !p.id ? 'Add post' : 'Save post') + '</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
       '</div>';
+    }
+
+    /* Tag picker: one-click library tags plus free-typed extras */
+    function renderTagPicker(p) {
+      var lib = STATE.tags || [];
+      var selected = p.tags || [];
+      var lowerSel = selected.map(function(t) { return t.toLowerCase(); });
+      var lowerLib = lib.map(function(t) { return t.name.toLowerCase(); });
+      var html = '<label class="field-label">Tags</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+      for (var i = 0; i < lib.length; i++) {
+        var on = lowerSel.indexOf(lib[i].name.toLowerCase()) !== -1;
+        html += '<button type="button" class="tag-chip' + (on ? '' : ' off') + '"' + (lib[i].color ? ' style="--c:' + esc(lib[i].color) + '"' : '') +
+          ' aria-pressed="' + on + '" onclick="toggleLibraryTag(' + i + ')">' + esc(lib[i].name) + '</button>';
+      }
+      for (var j = 0; j < selected.length; j++) {
+        if (lowerLib.indexOf(selected[j].toLowerCase()) !== -1) continue;
+        html += '<button type="button" class="tag-chip" title="Remove tag" onclick="removeEditorTag(' + j + ')">' + esc(selected[j]) + ' <span class="x">✕</span></button>';
+      }
+      if (!lib.length && !selected.length) {
+        html += '<span style="font-size:12.5px;color:var(--text-soft)">No tags yet.' + (STATE.mode === 'agency' && STATE.isBilling ? ' Create reusable tags in Settings → Tags.' : '') + '</span>';
+      }
+      html += '</div><input type="text" id="custom-tag-input" placeholder="Type another tag and press Enter" onkeydown="if(event.key===\'Enter\'||event.key===\',\'){event.preventDefault();addCustomTag(this.value);}">';
+      return html;
+    }
+
+    function toggleLibraryTag(i) {
+      var tag = (STATE.tags || [])[i];
+      if (!tag || !EDITOR_POST) return;
+      var lower = tag.name.toLowerCase();
+      var idx = -1;
+      for (var k = 0; k < EDITOR_POST.tags.length; k++) {
+        if (EDITOR_POST.tags[k].toLowerCase() === lower) idx = k;
+      }
+      if (idx === -1) EDITOR_POST.tags.push(tag.name);
+      else EDITOR_POST.tags.splice(idx, 1);
+      STATE.editorDirty = true;
+      renderPostEditorModal();
+    }
+
+    function removeEditorTag(j) {
+      if (!EDITOR_POST) return;
+      EDITOR_POST.tags.splice(j, 1);
+      STATE.editorDirty = true;
+      renderPostEditorModal();
+    }
+
+    function addCustomTag(value) {
+      if (!EDITOR_POST) return;
+      var lowerSel = EDITOR_POST.tags.map(function(t) { return t.toLowerCase(); });
+      String(value || '').split(',').forEach(function(raw) {
+        var t = raw.trim().replace(/\s+/g, ' ').slice(0, 40);
+        if (t && lowerSel.indexOf(t.toLowerCase()) === -1) {
+          EDITOR_POST.tags.push(t);
+          lowerSel.push(t.toLowerCase());
+        }
+      });
+      STATE.editorDirty = true;
+      renderPostEditorModal();
+      var inp = document.getElementById('custom-tag-input');
+      if (inp) inp.focus();
     }
 
     function syncEditorField(k, v) {
@@ -2230,7 +2857,7 @@
       });
       seq.then(function() {
         var finalLbl = document.getElementById('upload-status-label');
-        if (finalLbl) finalLbl.textContent = 'Click to upload, drag files here, or press Ctrl/Cmd+V to paste an image';
+        if (finalLbl) finalLbl.textContent = 'Tap to upload, drag files here, or paste an image';
       });
     }
 
@@ -2297,7 +2924,7 @@
           }
           closeModal(true);
           renderApp();
-          showToast('Post saved', 'success');
+          showToast(STATE.mode === 'portal' ? 'Post saved. The agency team has been notified.' : 'Post saved', 'success');
         })
         .catch(function(err) {
           if (btn) { btn.disabled = false; btn.textContent = 'Save post'; }
@@ -2356,35 +2983,66 @@
       if (!client) return;
       STATE.activeModal = 'share';
       var fullLink = client.token ? portalUrl(client.token) : '';
+      var access = client.portalAccess === 'edit' ? 'edit' : 'view';
+      var cid = esc(client.id);
+
+      var accessHtml = '<div><label class="field-label">People with this link can</label>' +
+        '<div class="seg" role="group" aria-label="Link access">' +
+          '<button type="button" class="' + (access === 'view' ? 'active' : '') + '" aria-pressed="' + (access === 'view') + '" onclick="setShareAccess(\'' + cid + '\', \'view\')">👁 View &amp; approve</button>' +
+          '<button type="button" class="' + (access === 'edit' ? 'active' : '') + '" aria-pressed="' + (access === 'edit') + '" onclick="setShareAccess(\'' + cid + '\', \'edit\')">✏️ Add &amp; edit</button>' +
+        '</div>' +
+        '<p style="margin:8px 0 0 0;font-size:12.5px;color:var(--text-muted)">' +
+          (access === 'edit'
+            ? 'Clients can add posts, upload media and edit posts until they are Scheduled. They can delete only posts they added, and they can still approve or request changes.'
+            : 'Clients can see the calendar and board, comment, and approve or request changes.') +
+        '</p></div>';
 
       var root = document.getElementById('modal-root');
-      root.innerHTML = '<div class="modal-backdrop" onclick="if(event.target===this)closeModal(true)">' +
+      root.innerHTML = '<div class="modal-backdrop' + modalEnterCls() + '" onclick="if(event.target===this)closeModal(true)">' +
         '<div class="modal-box">' +
           '<div class="modal-header">' +
-            '<h3>Share client portal — ' + esc(client.name) + '</h3>' +
-            '<button class="btn-sm btn-ghost" onclick="closeModal(true)">✕</button>' +
+            '<h3 style="display:flex;align-items:center;gap:8px">' + clientDot(client) + 'Share client portal — ' + esc(client.name) + '</h3>' +
+            '<button class="btn-sm btn-ghost" onclick="closeModal(true)" aria-label="Close">✕</button>' +
           '</div>' +
-          '<div class="modal-body" style="display:flex;flex-direction:column;gap:14px">' +
+          '<div class="modal-body" style="display:flex;flex-direction:column;gap:16px">' +
             '<p style="margin:0;color:var(--text-muted);font-size:13.5px">' +
               (!client.parentId
-                ? 'This parent link grants read-only review access to all active sub-clients under <strong>' + esc(client.name) + '</strong>.'
-                : 'This link grants read-only review access only to <strong>' + esc(client.name) + '</strong>.') +
+                ? 'This parent link opens all active sub-clients under <strong>' + esc(client.name) + '</strong>.'
+                : 'This link opens only <strong>' + esc(client.name) + '</strong>.') +
             '</p>' +
+            accessHtml +
             (client.token
               ? '<div><label class="field-label">Client portal link</label>' +
-                '<div style="display:flex;gap:8px"><input type="text" id="share-url-input" readonly value="' + esc(fullLink) + '">' +
+                '<div style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="share-url-input" readonly value="' + esc(fullLink) + '" style="flex:1 1 220px">' +
                 '<button type="button" onclick="copyShareLink()">Copy</button>' +
                 '<a href="' + esc(fullLink) + '" target="_blank" rel="noopener" class="btn-primary" style="text-decoration:none;padding:7px 13px;border-radius:var(--radius);font-weight:500;white-space:nowrap">Open client view</a></div></div>' +
-                '<div style="display:flex;gap:8px;margin-top:6px">' +
-                  '<button type="button" onclick="manageToken(\'' + esc(client.id) + '\', \'rotate\')">Make a new link</button>' +
-                  '<button type="button" style="color:var(--danger)" onclick="manageToken(\'' + esc(client.id) + '\', \'disable\')">Turn off link</button>' +
+                '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+                  '<button type="button" onclick="manageToken(\'' + cid + '\', \'rotate\')">Make a new link</button>' +
+                  '<button type="button" style="color:var(--danger)" onclick="manageToken(\'' + cid + '\', \'disable\')">Turn off link</button>' +
                 '</div>'
-              : '<div><button type="button" class="btn-primary" onclick="manageToken(\'' + esc(client.id) + '\', \'create\')">Create share link</button></div>'
+              : '<div><button type="button" class="btn-primary" onclick="manageToken(\'' + cid + '\', \'create\')">Create share link</button></div>'
             ) +
           '</div>' +
           '<div class="modal-footer"><span></span><button onclick="closeModal(true)">Done</button></div>' +
         '</div>' +
       '</div>';
+    }
+
+    function setShareAccess(clientId, access) {
+      var c = getClient(clientId);
+      if (!c || c.portalAccess === access) return;
+      var prev = c.portalAccess;
+      c.portalAccess = access;
+      openShareModal(clientId);
+      callApi('setPortalAccess', { clientId: clientId, access: access })
+        .then(function() {
+          showToast(access === 'edit' ? 'Link can now add & edit posts' : 'Link is now view & approve only', 'success');
+        })
+        .catch(function(err) {
+          c.portalAccess = prev;
+          openShareModal(clientId);
+          showToast(err.message, 'error');
+        });
     }
 
     function copyShareLink() {
@@ -2403,7 +3061,7 @@
       callApi('manageClientToken', { clientId: clientId, mode: mode })
         .then(function(res) {
           var c = getClient(clientId);
-          if (c) { c.token = res.token; c.hasToken = Boolean(res.token); }
+          if (c) { c.token = res.token; c.hasToken = Boolean(res.token); c.portalAccess = res.portalAccess || c.portalAccess; }
           if (res.webAppUrl) STATE.webAppUrl = res.webAppUrl;
           openShareModal(clientId);
           showToast(mode === 'disable' ? 'Share link turned off' : 'Share link ready', 'success');
@@ -2416,6 +3074,7 @@
       var clientPosts = currentClient ? STATE.posts.filter(function(p) { return p.clientId === currentClient.id; }) : [];
       var waitingCount = clientPosts.filter(function(p) { return p.status === 'In Review'; }).length;
       var filtered = filterPostsList(clientPosts, true);
+      var canEdit = canPortalEdit(null);
 
       var switcherHtml = '';
       if (STATE.clients.length > 1) {
@@ -2428,25 +3087,28 @@
 
       var bannerHtml = '';
       if (waitingCount > 0) {
-        bannerHtml = '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
-          '<span style="font-weight:600;color:#92400e">' + waitingCount + ' ' + (waitingCount === 1 ? 'post is' : 'posts are') + ' waiting for your review</span>' +
+        bannerHtml = '<div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--radius-lg);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">' +
+          '<span style="font-weight:600;color:var(--warn-text)">' + waitingCount + ' ' + (waitingCount === 1 ? 'post is' : 'posts are') + ' waiting for your review</span>' +
           '<button class="btn-sm" onclick="STATE.portalOnlyReview=!STATE.portalOnlyReview;renderApp()">' + (STATE.portalOnlyReview ? 'Show all posts' : 'Show only these') + '</button>' +
         '</div>';
       }
 
-      return '<header class="topbar">' +
+      return '<header class="topbar portal-bar">' +
         '<div class="topbar-left">' +
           '<div class="logo-mark"><span></span><span></span><span></span><span></span><span></span></div>' +
           '<span class="brand-title">' + esc(STATE.agencyName) + '</span>' +
           '<span style="color:var(--border-strong)">|</span>' +
+          (currentClient ? clientDot(currentClient) : '') +
           '<span style="font-weight:600">' + esc(currentClient ? currentClient.name : '') + '</span>' +
           switcherHtml +
         '</div>' +
         '<div class="topbar-right">' +
+          themeButtonHtml() +
           '<div class="sub-tabs">' +
             '<button class="sub-tab ' + (STATE.subView === 'calendar' ? 'active' : '') + '" onclick="setSubView(\'calendar\')">Calendar</button>' +
             '<button class="sub-tab ' + (STATE.subView === 'board' ? 'active' : '') + '" onclick="setSubView(\'board\')">Board</button>' +
           '</div>' +
+          (canEdit ? '<button class="btn-primary" onclick="openPostModal(null, \'' + esc(STATE.today) + '\')">+ New post</button>' : '') +
         '</div>' +
       '</header>' +
       '<main class="main-area" style="max-width:1440px;margin:0 auto">' +
@@ -2495,8 +3157,8 @@
 
       var decisionBox = '';
       if (p.status === 'In Review') {
-        decisionBox = '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:12px;margin-top:14px">' +
-          '<div style="font-weight:700;margin-bottom:8px;color:#92400e">This post is ready for your approval</div>' +
+        decisionBox = '<div style="background:var(--warn-bg);border:1px solid var(--warn-border);border-radius:var(--radius);padding:12px;margin-top:14px">' +
+          '<div style="font-weight:700;margin-bottom:8px;color:var(--warn-text)">This post is ready for your approval</div>' +
           '<textarea id="portal-decision-comment" rows="2" placeholder="Optional note (required if requesting changes)…" style="margin-bottom:8px"></textarea>' +
           '<div style="display:flex;gap:8px">' +
             '<button type="button" class="btn-primary" style="background:var(--st-published);border-color:var(--st-published)" onclick="submitPortalDecision(\'' + esc(p.id) + '\', \'approve\')">Approve post</button>' +
@@ -2506,12 +3168,15 @@
       }
 
       var root = document.getElementById('modal-root');
-      root.innerHTML = '<div class="modal-backdrop" onclick="if(event.target===this)closeModal(true)">' +
+      root.innerHTML = '<div class="modal-backdrop' + modalEnterCls() + '" onclick="if(event.target===this)closeModal(true)">' +
         '<div class="modal-box modal-xl">' +
           '<div class="modal-header">' +
-            '<div style="display:flex;align-items:center;gap:10px">' +
-              '<span class="status-pill st-bg-' + statusClass(p.status) + '">' + esc(p.status) + '</span>' +
-              '<strong>' + esc((p.date || 'Unscheduled') + (p.time ? ' at ' + p.time : '')) + '</strong>' +
+            '<div style="display:flex;flex-direction:column;gap:4px;min-width:0">' +
+              '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+                '<span class="status-pill st-bg-' + statusClass(p.status) + '">' + esc(p.status) + '</span>' +
+                '<strong>' + esc((p.date || 'Unscheduled') + (p.time ? ' at ' + p.time : '')) + '</strong>' +
+              '</div>' +
+              postMetaHtml(p) +
             '</div>' +
             '<button class="btn-sm btn-ghost" onclick="closeModal(true)">✕</button>' +
           '</div>' +
@@ -2521,7 +3186,7 @@
               '<div style="white-space:pre-wrap;font-size:14.5px;background:var(--surface-subtle);padding:14px;border-radius:var(--radius);border:1px solid var(--border)">' + esc(p.text || '(No copy)') + '</div>' +
               '<div class="chip-row" style="margin-top:12px">' +
                 p.platforms.map(function(pl) { return '<span class="mini-chip"><strong>' + esc(pl) + '</strong></span>'; }).join('') +
-                p.tags.map(function(tg) { return '<span class="mini-chip">#' + esc(tg) + '</span>'; }).join('') +
+                p.tags.map(tagChip).join('') +
               '</div>' +
               (p.liveUrl ? '<div style="margin-top:10px"><a href="' + esc(p.liveUrl) + '" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">View live published post ↗</a></div>' : '') +
               decisionBox +
@@ -2677,7 +3342,7 @@
       var itemsHtml = '';
       for (var i = 0; i < inv.items.length; i++) {
         var it = inv.items[i];
-        itemsHtml += '<div style="display:grid;grid-template-columns:1fr 85px 110px 34px;gap:8px;margin-bottom:8px;align-items:center">' +
+        itemsHtml += '<div class="inv-line">' +
           '<input type="text" placeholder="Service description" value="' + esc(it.description) + '" oninput="EDITOR_INV.items[' + i + '].description=this.value">' +
           '<input type="number" step="any" placeholder="Qty" value="' + esc(it.qty) + '" oninput="EDITOR_INV.items[' + i + '].qty=this.value;updateInvoiceLiveTotals()">' +
           '<input type="number" step="any" placeholder="Rate" value="' + esc(it.rate) + '" oninput="EDITOR_INV.items[' + i + '].rate=this.value;updateInvoiceLiveTotals()">' +
@@ -2686,14 +3351,14 @@
       }
 
       var root = document.getElementById('modal-root');
-      root.innerHTML = '<div class="modal-backdrop" onclick="if(event.target===this)closeModal(true)">' +
+      root.innerHTML = '<div class="modal-backdrop' + modalEnterCls() + '" onclick="if(event.target===this)closeModal(true)">' +
         '<div class="modal-box">' +
           '<div class="modal-header">' +
             '<h3>' + (inv.id ? 'Edit invoice ' + esc(inv.number) : 'Add invoice') + '</h3>' +
             '<button class="btn-sm btn-ghost" onclick="closeModal(true)">✕</button>' +
           '</div>' +
           '<div class="modal-body" style="display:flex;flex-direction:column;gap:12px">' +
-            '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">' +
+            '<div class="grid-4">' +
               '<div><label class="field-label">Invoice #</label><input type="text" placeholder="Auto (INV-YYYY-NNN)" value="' + esc(inv.number) + '" oninput="EDITOR_INV.number=this.value"></div>' +
               '<div><label class="field-label">Currency</label><input type="text" value="' + esc(inv.currency) + '" oninput="EDITOR_INV.currency=this.value.toUpperCase();updateInvoiceLiveTotals()"></div>' +
               '<div><label class="field-label">Issue date</label><input type="date" value="' + esc(inv.issueDate) + '" oninput="onInvoiceIssueDateChange(this.value)"></div>' +
@@ -2848,11 +3513,11 @@
        ======================================================================== */
     function openClientModal(clientId, parentId) {
       var existing = clientId ? getClient(clientId) : null;
-      var c = existing || { id: '', name: '', parentId: parentId || '', notifyEmail: '', currency: '', archived: false };
+      var c = existing || { id: '', name: '', parentId: parentId || '', notifyEmail: '', currency: '', archived: false, color: CLIENT_COLORS[STATE.clients.length % CLIENT_COLORS.length] };
       STATE.activeModal = 'clientModal';
 
       var root = document.getElementById('modal-root');
-      root.innerHTML = '<div class="modal-backdrop" onclick="if(event.target===this)closeModal(true)">' +
+      root.innerHTML = '<div class="modal-backdrop' + modalEnterCls() + '" onclick="if(event.target===this)closeModal(true)">' +
         '<div class="modal-box">' +
           '<div class="modal-header">' +
             '<h3>' + (c.id ? 'Client settings — ' + esc(c.name) : (c.parentId ? 'Add sub-client' : 'Add parent client')) + '</h3>' +
@@ -2862,6 +3527,12 @@
             '<div><label class="field-label">Client name</label><input type="text" id="cli-name" value="' + esc(c.name) + '" placeholder="Acme Corp"></div>' +
             '<div><label class="field-label">Notification email (for reviews &amp; invoices)</label><input type="email" id="cli-email" value="' + esc(c.notifyEmail) + '" placeholder="approvals@client.com"></div>' +
             '<div><label class="field-label">Default currency (leave blank to inherit)</label><input type="text" id="cli-curr" value="' + esc(c.currency) + '" placeholder="' + esc(STATE.settings.defaultCurrency || 'USD') + '"></div>' +
+            '<div><label class="field-label">Color</label><div class="swatches">' +
+              '<button type="button" class="swatch none' + (!c.color ? ' on' : '') + '" onclick="pickClientColor(this, \'\')" aria-label="No color" title="No color">∅</button>' +
+              CLIENT_COLORS.map(function(col) {
+                return '<button type="button" class="swatch' + (c.color === col ? ' on' : '') + '" style="background:' + col + '" onclick="pickClientColor(this, \'' + col + '\')" aria-label="Color ' + col + '"></button>';
+              }).join('') +
+            '</div><input type="hidden" id="cli-color" value="' + esc(c.color || '') + '"></div>' +
             (c.id ? '<div style="border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;align-items:center">' +
               '<div><strong>' + (c.archived ? 'Restore client' : 'Archive client') + '</strong><div style="font-size:12px;color:var(--text-soft)">' + (c.archived ? 'Re-enable workspace and portal link.' : 'Hides from sidebar and disables share links.') + '</div></div>' +
               '<button type="button" onclick="toggleArchiveClientNow(\'' + esc(c.id) + '\', ' + (!c.archived) + ')">' + (c.archived ? 'Restore' : 'Archive') + '</button>' +
@@ -2883,13 +3554,21 @@
       '</div>';
     }
 
+    function pickClientColor(btn, color) {
+      document.getElementById('cli-color').value = color;
+      var all = btn.parentNode.querySelectorAll('.swatch');
+      for (var i = 0; i < all.length; i++) all[i].classList.remove('on');
+      btn.classList.add('on');
+    }
+
     function saveClientModalNow(id, parentId) {
       callApi('saveClient', {
         id: id,
         parentId: parentId,
         name: document.getElementById('cli-name').value,
         notifyEmail: document.getElementById('cli-email').value,
-        currency: document.getElementById('cli-curr').value
+        currency: document.getElementById('cli-curr').value,
+        color: document.getElementById('cli-color').value
       }).then(function(res) {
         var found = false;
         for (var i = 0; i < STATE.clients.length; i++) {
@@ -2957,14 +3636,14 @@
           '<td><select onchange="DRAFT_TEAM[' + i + '].role=this.value">' +
             roles.map(function(r) { return '<option value="' + r + '" ' + (m.role === r ? 'selected' : '') + '>' + r + '</option>'; }).join('') +
           '</select></td>' +
-          '<td><input type="password" value="' + esc(m.password) + '" placeholder="' + (m.isExisting ? 'Leave blank to keep current' : 'Required (min 8 chars)') + '" oninput="DRAFT_TEAM[' + i + '].password=this.value"></td>' +
+          '<td style="min-width:200px">' + pwField('value="' + esc(m.password) + '" placeholder="' + (m.isExisting ? 'Leave blank to keep current' : 'Required (min 8 chars)') + '" autocomplete="new-password" oninput="DRAFT_TEAM[' + i + '].password=this.value"') + '</td>' +
           '<td style="text-align:right"><button class="btn-sm" style="color:var(--danger)" onclick="DRAFT_TEAM.splice(' + i + ',1);renderApp()">Remove</button></td>' +
         '</tr>';
       }
 
-      return '<div style="max-width:980px">' +
+      return '<div>' +
         '<div class="view-header">' +
-          '<div><h1 style="font-size:22px;margin:0">Team &amp; settings</h1><p style="color:var(--text-muted);margin:4px 0 0 0">Manage agency branding, invoice defaults, and team member roles.</p></div>' +
+          '<div><h2 style="font-size:18px;margin:0">Team &amp; workspace</h2><p style="color:var(--text-muted);margin:4px 0 0 0;font-size:13px">Agency branding, invoice defaults, and team member roles.</p></div>' +
           '<button class="btn-primary" id="save-team-btn" onclick="saveTeamAndSettingsNow()">Save settings</button>' +
         '</div>' +
         '<div class="card" style="margin-bottom:20px">' +
@@ -3016,38 +3695,215 @@
        ACCOUNT MENU MODAL (CHANGE PASSWORD & SIGN OUT)
        ======================================================================== */
     function openAccountModal() {
-      STATE.activeModal = 'account';
-      var root = document.getElementById('modal-root');
-      root.innerHTML = '<div class="modal-backdrop" onclick="if(event.target===this)closeModal(true)">' +
-        '<div class="modal-box" style="max-width:440px">' +
-          '<div class="modal-header">' +
-            '<h3>Account — ' + esc(STATE.user.name) + '</h3>' +
-            '<button class="btn-sm btn-ghost" onclick="closeModal(true)">✕</button>' +
+      openSettings('profile');
+    }
+
+    /* ========================================================================
+       SETTINGS: PROFILE / TAGS / TEAM
+       ======================================================================== */
+    var PROFILE_DRAFT = null;
+    var DRAFT_TAGS = null;
+
+    function renderSettingsView() {
+      var tabs = [['profile', 'Profile']];
+      if (STATE.isBilling) tabs.push(['tags', 'Tags']);
+      if (STATE.isAdmin) tabs.push(['team', 'Team & workspace']);
+      var tab = STATE.settingsTab;
+      if (!tabs.some(function(t) { return t[0] === tab; })) tab = 'profile';
+      var body = tab === 'tags' ? renderTagsSettings() : (tab === 'team' ? renderTeamAndSettingsView() : renderProfileSettings());
+      return '<div style="margin-bottom:18px"><h1 style="font-size:22px;margin:0">Settings</h1></div>' +
+        '<div class="settings-layout">' +
+          '<nav class="settings-nav">' +
+            tabs.map(function(t) {
+              return '<button class="' + (t[0] === tab ? 'active' : '') + '" onclick="openSettings(\'' + t[0] + '\')">' + esc(t[1]) + '</button>';
+            }).join('') +
+          '</nav>' +
+          '<div>' + body + '</div>' +
+        '</div>';
+    }
+
+    function renderProfileSettings() {
+      var u = STATE.user;
+      if (!PROFILE_DRAFT) {
+        PROFILE_DRAFT = { name: u.name, title: u.title || '', phone: u.phone || '', avatarUrl: u.avatarUrl || '' };
+      }
+      var d = PROFILE_DRAFT;
+      return '<div class="card settings-card" style="margin-bottom:18px">' +
+          '<h2>Your profile</h2><p class="lead">How you appear to your team and on posts you add.</p>' +
+          '<div style="display:flex;align-items:center;gap:18px;margin-bottom:18px;flex-wrap:wrap">' +
+            avatarHtml({ name: d.name, avatarUrl: d.avatarUrl }, 'avatar-lg') +
+            '<div style="display:flex;flex-direction:column;gap:6px">' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+                '<button type="button" id="avatar-btn" onclick="document.getElementById(\'avatar-input\').click()">Upload photo</button>' +
+                (d.avatarUrl ? '<button type="button" class="btn-ghost" onclick="removeAvatar()">Remove</button>' : '') +
+              '</div>' +
+              '<span style="font-size:12px;color:var(--text-soft)">JPG, PNG or WebP, up to 5 MB</span>' +
+              '<input type="file" id="avatar-input" accept="image/*" style="display:none" onchange="uploadAvatar(this.files[0])">' +
+            '</div>' +
           '</div>' +
-          '<div class="modal-body" style="display:flex;flex-direction:column;gap:14px">' +
-            '<div style="font-size:13px;color:var(--text-muted)">Signed in as <strong>' + esc(STATE.user.email) + '</strong> (' + esc(STATE.user.role) + ')</div>' +
-            '<form onsubmit="submitPasswordChange(event)" style="display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border);padding-top:12px">' +
-              '<strong>Change password</strong>' +
-              '<div><label class="field-label">Current password</label><input type="password" id="acc-cur-pass" required></div>' +
-              '<div><label class="field-label">New password (min 8 chars)</label><input type="password" id="acc-new-pass" required minlength="8"></div>' +
-              '<button type="submit" class="btn-primary" style="justify-content:center">Update password &amp; sign out other devices</button>' +
-            '</form>' +
+          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">' +
+            '<div><label class="field-label">Full name</label><input type="text" value="' + esc(d.name) + '" oninput="PROFILE_DRAFT.name=this.value" autocomplete="name"></div>' +
+            '<div><label class="field-label">Job title</label><input type="text" value="' + esc(d.title) + '" placeholder="e.g. Social Media Manager" oninput="PROFILE_DRAFT.title=this.value"></div>' +
+            '<div><label class="field-label">Phone</label><input type="text" inputmode="tel" value="' + esc(d.phone) + '" placeholder="+977 98…" oninput="PROFILE_DRAFT.phone=this.value" autocomplete="tel"></div>' +
+            '<div><label class="field-label">Email (used to sign in)</label><input type="email" value="' + esc(u.email) + '" readonly style="background:var(--surface-subtle)"></div>' +
           '</div>' +
-          '<div class="modal-footer">' +
+          '<div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="btn-primary" id="save-profile-btn" onclick="saveProfileNow()">Save profile</button></div>' +
+        '</div>' +
+        '<div class="card settings-card" style="margin-bottom:18px">' +
+          '<h2>Change password</h2><p class="lead">Changing your password signs you out on your other devices.</p>' +
+          '<form onsubmit="submitPasswordChange(event)" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end">' +
+            '<div><label class="field-label">Current password</label>' + pwField('id="acc-cur-pass" required autocomplete="current-password"') + '</div>' +
+            '<div><label class="field-label">New password (min 8 chars)</label>' + pwField('id="acc-new-pass" required minlength="8" autocomplete="new-password"') + '</div>' +
+            '<div><button type="submit" class="btn-primary" style="width:100%;justify-content:center">Update password</button></div>' +
+          '</form>' +
+        '</div>' +
+        '<div class="card settings-card">' +
+          '<h2>Devices &amp; sign-in</h2>' +
+          '<p class="lead">The first time you sign in on a new browser or phone, we email a 6-digit code to <strong>' + esc(u.email) + '</strong>. That device is then trusted for 30 days.</p>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+            '<button type="button" onclick="signOutEverywhereNow()">Sign out all other devices</button>' +
             '<button type="button" class="btn-danger" onclick="signOutNow()">Sign out</button>' +
-            '<button type="button" onclick="closeModal(true)">Close</button>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function saveProfileNow(quiet) {
+      var d = PROFILE_DRAFT;
+      if (!d) return;
+      var btn = document.getElementById('save-profile-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+      var payload = { name: d.name, title: d.title, phone: d.phone };
+      if (d.avatarPath !== undefined) payload.avatarPath = d.avatarPath;
+      return callApi('saveProfile', payload)
+        .then(function(res) {
+          STATE.user = res.user;
+          for (var i = 0; i < STATE.team.length; i++) {
+            if (STATE.team[i].email === res.user.email) STATE.team[i] = res.user;
+          }
+          PROFILE_DRAFT = null;
+          renderApp();
+          if (!quiet) showToast('Profile saved', 'success');
+        })
+        .catch(function(err) {
+          if (btn) { btn.disabled = false; btn.textContent = 'Save profile'; }
+          showToast(err.message, 'error');
+        });
+    }
+
+    function uploadAvatar(file) {
+      if (!file) return;
+      if (file.type.indexOf('image/') !== 0) { showToast('Please choose an image file.', 'error'); return; }
+      if (file.size > 5 * 1024 * 1024) { showToast('Profile photos can be up to 5 MB.', 'error'); return; }
+      var btn = document.getElementById('avatar-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
+      callApi('createAvatarUpload', { name: file.name, mimeType: file.type, size: file.size })
+        .then(function(res) {
+          return uploadToSignedUrl(res.uploadUrl, file).then(function() { return res; });
+        })
+        .then(function(res) {
+          PROFILE_DRAFT.avatarPath = res.path;
+          PROFILE_DRAFT.avatarUrl = res.url;
+          return saveProfileNow(true).then(function() { showToast('Profile photo updated', 'success'); });
+        })
+        .catch(function(err) {
+          if (btn) { btn.disabled = false; btn.textContent = 'Upload photo'; }
+          showToast(err.message, 'error');
+        });
+    }
+
+    function removeAvatar() {
+      PROFILE_DRAFT.avatarPath = '';
+      PROFILE_DRAFT.avatarUrl = '';
+      saveProfileNow(true).then(function() { showToast('Profile photo removed', 'success'); });
+    }
+
+    function signOutEverywhereNow() {
+      if (!confirm('Sign out on all your other devices? They will need a code from your email next time.')) return;
+      callApi('signOutEverywhere', {})
+        .then(function() { showToast('Signed out everywhere else', 'success'); })
+        .catch(function(err) { showToast(err.message, 'error'); });
+    }
+
+    function renderTagsSettings() {
+      if (!DRAFT_TAGS) {
+        DRAFT_TAGS = (STATE.tags || []).map(function(t) { return { id: t.id, name: t.name, color: t.color || '' }; });
+      }
+      var rows = '';
+      for (var i = 0; i < DRAFT_TAGS.length; i++) {
+        var t = DRAFT_TAGS[i];
+        rows += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">' +
+          '<input type="color" value="' + esc(t.color || '#8590a3') + '" oninput="DRAFT_TAGS[' + i + '].color=this.value" aria-label="Tag color" style="width:42px;height:38px;padding:3px;flex-shrink:0;border-radius:8px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer">' +
+          '<input type="text" id="tag-name-' + i + '" value="' + esc(t.name) + '" placeholder="Tag name" maxlength="40" oninput="DRAFT_TAGS[' + i + '].name=this.value" style="flex:1;min-width:0">' +
+          '<span class="reorder-btns">' +
+            '<button type="button" class="btn-sm" onclick="moveDraftTag(' + i + ', -1)" ' + (i === 0 ? 'disabled' : '') + ' aria-label="Move up">↑</button>' +
+            '<button type="button" class="btn-sm" onclick="moveDraftTag(' + i + ', 1)" ' + (i === DRAFT_TAGS.length - 1 ? 'disabled' : '') + ' aria-label="Move down">↓</button>' +
+            '<button type="button" class="btn-sm" style="color:var(--danger)" onclick="DRAFT_TAGS.splice(' + i + ', 1);renderApp()" aria-label="Delete tag">✕</button>' +
+          '</span>' +
+        '</div>';
+      }
+      if (!DRAFT_TAGS.length) {
+        rows = '<div style="color:var(--text-soft);font-size:13px;padding:8px 0 14px">No tags yet. Add your first one, like “Launch”, “Reel” or “Offer”.</div>';
+      }
+      return '<div class="card settings-card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">' +
+          '<div><h2>Tag library</h2><p class="lead">These tags appear as one-click options on every post. Renaming a tag updates it on every post that uses it.</p></div>' +
+          '<div style="display:flex;gap:8px">' +
+            '<button type="button" class="btn-sm" onclick="addDraftTag()">+ Add tag</button>' +
+            '<button type="button" class="btn-primary btn-sm" id="save-tags-btn" onclick="saveTagsNow()">Save tags</button>' +
           '</div>' +
         '</div>' +
+        rows +
+        (DRAFT_TAGS.length ? '<div class="chip-row" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">' +
+          DRAFT_TAGS.filter(function(t) { return t.name.trim(); }).map(function(t) {
+            return '<span class="tag-chip"' + (t.color ? ' style="--c:' + esc(t.color) + '"' : '') + '>' + esc(t.name) + '</span>';
+          }).join('') + '</div>' : '') +
       '</div>';
+    }
+
+    function addDraftTag() {
+      DRAFT_TAGS.push({ id: '', name: '', color: CLIENT_COLORS[DRAFT_TAGS.length % CLIENT_COLORS.length] });
+      renderApp();
+      var inp = document.getElementById('tag-name-' + (DRAFT_TAGS.length - 1));
+      if (inp) inp.focus();
+    }
+
+    function moveDraftTag(i, dir) {
+      var j = i + dir;
+      if (j < 0 || j >= DRAFT_TAGS.length) return;
+      var tmp = DRAFT_TAGS[i];
+      DRAFT_TAGS[i] = DRAFT_TAGS[j];
+      DRAFT_TAGS[j] = tmp;
+      renderApp();
+    }
+
+    function saveTagsNow() {
+      var btn = document.getElementById('save-tags-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+      callApi('saveTags', { tags: DRAFT_TAGS })
+        .then(function() {
+          DRAFT_TAGS = null;
+          return callApi('boot', {});
+        })
+        .then(function(data) {
+          applyBootState(data);
+          showToast('Tags saved', 'success');
+        })
+        .catch(function(err) {
+          if (btn) { btn.disabled = false; btn.textContent = 'Save tags'; }
+          showToast(err.message, 'error');
+        });
     }
 
     function submitPasswordChange(e) {
       e.preventDefault();
+      var cur = document.getElementById('acc-cur-pass');
+      var next = document.getElementById('acc-new-pass');
       callApi('changePassword', {
-        currentPassword: document.getElementById('acc-cur-pass').value,
-        newPassword: document.getElementById('acc-new-pass').value
+        currentPassword: cur.value,
+        newPassword: next.value
       }).then(function() {
-        closeModal(true);
+        cur.value = '';
+        next.value = '';
         showToast('Password updated. Other devices have been signed out.', 'success');
       }).catch(function(err) { showToast(err.message, 'error'); });
     }
