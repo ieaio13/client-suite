@@ -13,6 +13,7 @@ if (typeof process.loadEnvFile === 'function') {
 
 // Imported after .env is loaded so APP_TIMEZONE etc. are picked up.
 const { dispatch } = await import('./lib/handlers.js');
+const { checkEmail } = await import('./lib/email.js');
 
 const APP_PATH = new URL('./public/index.html', import.meta.url);
 const LANDING_PATH = new URL('./public/landing.html', import.meta.url);
@@ -98,6 +99,8 @@ http.createServer(async (req, res) => {
         database: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY),
         ...(await checkSupabase()),
         email: process.env.SMTP_HOST ? 'smtp' : (process.env.RESEND_API_KEY ? 'resend' : 'off'),
+        emailCheck: await checkEmail(),
+        loginCodes: String(process.env.DISABLE_LOGIN_CODES || '').toLowerCase() === 'true' ? 'off (DISABLE_LOGIN_CODES)' : 'on',
         appUrl: process.env.APP_URL || ''
       });
     }

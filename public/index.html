@@ -903,6 +903,23 @@
     .sidebar-overlay { display: none; }
     .info-note { background: var(--accent-soft); color: var(--text); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); padding: 8px 12px; border-radius: var(--radius); font-size: 12.5px; }
 
+    /* ---------- Calendar tiles: picture, status, copy ---------- */
+    .cal-chip { flex-direction: column; align-items: stretch; gap: 5px; padding: 5px; border-radius: 7px; font-size: 11.5px; }
+    .cal-chip-thumb { width: 100%; height: 84px; border-radius: 5px; }
+    .cal-chip-video { width: 100%; height: 84px; border-radius: 5px; background: #0f172a; color: #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+    .cal-chip .status-pill { align-self: flex-start; font-size: 10px; padding: 1px 7px; }
+    .cal-chip-text { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
+
+    /* ---------- Reference vs final media ---------- */
+    .asset-section { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px; background: var(--surface-subtle); display: flex; flex-direction: column; gap: 8px; }
+    .asset-section.asset-final { border-color: color-mix(in srgb, var(--st-published) 45%, var(--border)); }
+    .asset-head { display: flex; flex-direction: column; gap: 2px; }
+    .asset-title { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .asset-help { font-size: 12px; color: var(--text-soft); }
+    .asset-empty { font-size: 12.5px; color: var(--text-soft); padding: 4px 0; }
+    .asset-section .dropzone { padding: 12px; background: var(--surface); }
+    .media-badge.ref { left: 8px; right: auto; background: rgba(124, 77, 214, 0.9); }
+
     /* Responsive adjustments */
     @media (max-width: 860px) {
       .workspace { flex-direction: column; }
@@ -958,6 +975,8 @@
       .settings-nav button { white-space: nowrap; }
       .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .topbar.portal-bar { height: auto; min-height: 56px; flex-wrap: wrap; padding: 8px 12px; row-gap: 8px; }
+      .cal-chip { flex-direction: row; }
+      .cal-chip .status-pill, .cal-chip-video { display: none; }
     }
     @media (max-width: 640px) {
       .modal-backdrop { padding: 0; align-items: stretch; }
@@ -1309,6 +1328,65 @@
     }
     function canPortalEdit(p) {
       return STATE.mode === 'portal' && STATE.portalAccess === 'edit' && (!p || ['Scheduled', 'Published'].indexOf(p.status) === -1);
+    }
+
+    // The picture used on calendar tiles, board cards and table rows:
+    // the final design if there is one, otherwise the first reference image.
+    function postCover(p) {
+      if (p.assets && p.assets.length) return { asset: p.assets[0], isRef: false, count: p.assets.length };
+      if (p.refAssets && p.refAssets.length) return { asset: p.refAssets[0], isRef: true, count: p.refAssets.length };
+      return null;
+    }
+
+    function formatBytes(n) {
+      if (n >= 1024 * 1024) return (n / (1024 * 1024)).toFixed(1) + ' MB';
+      return Math.max(1, Math.round(n / 1024)) + ' KB';
+    }
+
+    /* ---------- Image compression before upload ----------
+       Resizes to at most 2048 px on the long side and re-encodes as JPEG (PNG if it has
+       transparency). Keeps the original when it's already small, when the browser can't
+       read it (e.g. HEIC on Chrome), or when the result wouldn't be smaller. */
+    var COMPRESS_MAX_DIM = 2048;
+    var COMPRESS_QUALITY = 0.85;
+    var COMPRESS_MIN_BYTES = 300 * 1024;
+
+    function compressImage(file) {
+      return new Promise(function(resolve) {
+        var compressible = /^image\/(jpeg|png|webp|bmp)$/i.test(file.type);
+        if (!compressible || file.size < COMPRESS_MIN_BYTES || typeof createImageBitmap !== 'function') {
+          resolve(file);
+          return;
+        }
+        createImageBitmap(file).then(function(bmp) {
+          var scale = Math.min(1, COMPRESS_MAX_DIM / Math.max(bmp.width, bmp.height));
+          var w = Math.max(1, Math.round(bmp.width * scale));
+          var h = Math.max(1, Math.round(bmp.height * scale));
+          var cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          var ctx = cv.getContext('2d');
+          ctx.drawImage(bmp, 0, 0, w, h);
+          if (bmp.close) bmp.close();
+          var type = (file.type === 'image/png' && hasTransparency(ctx, w, h)) ? 'image/png' : 'image/jpeg';
+          cv.toBlob(function(blob) {
+            if (!blob || blob.size >= file.size) {
+              resolve(file);
+              return;
+            }
+            var name = file.name.replace(/\.[^.]+$/, '') + (type === 'image/png' ? '.png' : '.jpg');
+            resolve(new File([blob], name, { type: type, lastModified: Date.now() }));
+          }, type, COMPRESS_QUALITY);
+        }).catch(function() { resolve(file); });
+      });
+    }
+
+    function hasTransparency(ctx, w, h) {
+      var data = ctx.getImageData(0, 0, w, h).data;
+      for (var i = 3; i < data.length; i += 4 * 16) {
+        if (data[i] < 250) return true;
+      }
+      return false;
     }
 
     /* ---------- Trusted devices (skip the emailed code on browsers that passed it) ---------- */
@@ -1782,7 +1860,7 @@
       STATE.nav = 'client';
       STATE.selectedClientId = clientId;
       STATE.sidebarOpen = false;
-      if (!STATE.isBilling && STATE.subView === 'invoices') {
+      if (STATE.subView === 'invoices') {
         STATE.subView = 'calendar';
       }
       renderApp();
@@ -1935,10 +2013,13 @@
     }
 
     function jumpToClientInvoices(clientId) {
+      var c = getClient(clientId);
       STATE.nav = 'client';
-      STATE.selectedClientId = clientId;
-      STATE.subView = 'invoices';
+      STATE.selectedClientId = c && c.parentId ? c.parentId : clientId;
+      STATE.sidebarOpen = false;
       renderApp();
+      var el = document.getElementById('invoices');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     /* ========================================================================
@@ -1965,7 +2046,7 @@
       // Sub-client cards with post counts per status
       html += '<h2 style="font-size:16px;margin:16px 0 12px 0">Sub-clients (' + subs.length + ')</h2>';
       if (subs.length === 0) {
-        html += '<div class="card" style="color:var(--text-soft)">No sub-clients under ' + esc(parent.name) + ' yet. Add a sub-client to create content and invoices.</div>';
+        html += '<div class="card" style="color:var(--text-soft)">No sub-clients under ' + esc(parent.name) + ' yet. Add a sub-client to plan its content.</div>';
       } else {
         html += '<div class="grid-cards">';
         var statuses = ['Draft', 'In Review', 'Approved', 'Scheduled', 'Published'];
@@ -1992,57 +2073,13 @@
         html += '</div>';
       }
 
-      // Billing rollup across all sub-clients
+      // Invoices are billed to the main client (older sub-client invoices are listed here too)
       if (STATE.isBilling) {
-        var subMap = {};
-        for (var sm = 0; sm < subs.length; sm++) subMap[subs[sm].id] = subs[sm];
-        var rollupInvoices = STATE.invoices.filter(function(inv) { return Boolean(subMap[inv.clientId]); });
-
-        var invoicedByCurr = {}, receivedByCurr = {}, outstandingByCurr = {};
-        var overdueCount = 0;
-        for (var r = 0; r < rollupInvoices.length; r++) {
-          var inv = rollupInvoices[r];
-          var tot = computeInvoiceTotals(inv).total;
-          var c = inv.currency || 'USD';
-          invoicedByCurr[c] = (invoicedByCurr[c] || 0) + tot;
-          if (inv.status === 'Paid') {
-            receivedByCurr[c] = (receivedByCurr[c] || 0) + tot;
-          } else {
-            outstandingByCurr[c] = (outstandingByCurr[c] || 0) + tot;
-            if (isInvoiceOverdue(inv)) overdueCount++;
-          }
-        }
-        var fmtMap = function(m) {
-          var ks = Object.keys(m);
-          return ks.length === 0 ? '0.00' : ks.map(function(k) { return formatCurrency(m[k], k); }).join(' · ');
-        };
-
-        html += '<h2 style="font-size:16px;margin:28px 0 12px 0">Billing rollup across sub-clients</h2>' +
-          '<div class="grid-cards" style="margin-bottom:16px">' +
-            '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Total invoiced</div><div style="font-size:19px;font-weight:700;margin-top:4px">' + esc(fmtMap(invoicedByCurr)) + '</div></div>' +
-            '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Total received</div><div style="font-size:19px;font-weight:700;margin-top:4px;color:var(--st-published)">' + esc(fmtMap(receivedByCurr)) + '</div></div>' +
-            '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Outstanding (' + overdueCount + ' overdue)</div><div style="font-size:19px;font-weight:700;margin-top:4px;color:var(--st-review)">' + esc(fmtMap(outstandingByCurr)) + '</div></div>' +
-          '</div>';
-
-        if (rollupInvoices.length === 0) {
-          html += '<div class="card" style="color:var(--text-soft)">No invoices across sub-clients yet.</div>';
-        } else {
-          html += '<div class="table-wrap"><table class="data-table"><thead><tr><th>Invoice #</th><th>Sub-client</th><th>Issue date</th><th>Due date</th><th>Status</th><th>Total</th></tr></thead><tbody>';
-          for (var ri = 0; ri < rollupInvoices.length; ri++) {
-            var rInv = rollupInvoices[ri];
-            var subC = subMap[rInv.clientId];
-            var overdue = isInvoiceOverdue(rInv);
-            html += '<tr class="clickable" onclick="jumpToClientInvoices(\'' + esc(rInv.clientId) + '\')">' +
-              '<td style="font-weight:600">' + esc(rInv.number) + '</td>' +
-              '<td>' + esc(subC ? subC.name : '') + '</td>' +
-              '<td>' + esc(rInv.issueDate) + '</td>' +
-              '<td>' + esc(rInv.dueDate) + '</td>' +
-              '<td><span class="status-pill" style="background:' + (rInv.status === 'Paid' ? 'var(--st-published)' : (overdue ? 'var(--danger)' : 'var(--st-review)')) + '">' + esc(overdue ? 'Overdue' : rInv.status) + '</span></td>' +
-              '<td style="font-weight:600">' + esc(formatCurrency(computeInvoiceTotals(rInv).total, rInv.currency)) + '</td>' +
-            '</tr>';
-          }
-          html += '</tbody></table></div>';
-        }
+        html += '<div id="invoices" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:28px 0 12px 0">' +
+          '<h2 style="font-size:16px;margin:0">Invoices</h2>' +
+          '<button class="btn-primary" onclick="openInvoiceModal(null)">+ Add invoice</button>' +
+        '</div>' +
+        renderClientInvoicesView(parent);
       }
 
       return html;
@@ -2066,17 +2103,12 @@
             '<button class="sub-tab ' + (STATE.subView === 'calendar' ? 'active' : '') + '" onclick="setSubView(\'calendar\')">Calendar</button>' +
             '<button class="sub-tab ' + (STATE.subView === 'board' ? 'active' : '') + '" onclick="setSubView(\'board\')">Board</button>' +
             '<button class="sub-tab ' + (STATE.subView === 'table' ? 'active' : '') + '" onclick="setSubView(\'table\')">Table</button>' +
-            (STATE.isBilling ? '<button class="sub-tab ' + (STATE.subView === 'invoices' ? 'active' : '') + '" onclick="setSubView(\'invoices\')">Invoices</button>' : '') +
           '</div>' +
           (STATE.isBilling ? '<button onclick="openShareModal(\'' + esc(client.id) + '\')">Share</button>' : '') +
           (STATE.isBilling ? '<button onclick="openClientModal(\'' + esc(client.id) + '\')">Settings</button>' : '') +
-          (STATE.subView !== 'invoices' ? '<button class="btn-primary" onclick="openPostModal(null, \'' + esc(STATE.today) + '\')">+ New post</button>' : '<button class="btn-primary" onclick="openInvoiceModal(null)">+ Add invoice</button>') +
+          '<button class="btn-primary" onclick="openPostModal(null, \'' + esc(STATE.today) + '\')">+ New post</button>' +
         '</div>' +
       '</div>';
-
-      if (STATE.subView === 'invoices' && STATE.isBilling) {
-        return html + renderClientInvoicesView(client);
-      }
 
       var allClientPosts = STATE.posts.filter(function(p) { return p.clientId === client.id; });
       var filteredPosts = filterPostsList(allClientPosts, false);
@@ -2304,11 +2336,15 @@
 
         for (var dp = 0; dp < dayPosts.length; dp++) {
           var item = dayPosts[dp];
-          var thumb = (item.assets && item.assets.length > 0 && item.assets[0].thumbUrl) ? '<img class="cal-chip-thumb" src="' + esc(item.assets[0].thumbUrl) + '" alt="">' : '';
+          var cover = postCover(item);
+          var thumb = !cover ? '' : (cover.asset.thumbUrl
+            ? '<img class="cal-chip-thumb" src="' + esc(cover.asset.thumbUrl) + '" alt="" loading="lazy">'
+            : '<div class="cal-chip-video">▶ Video</div>');
           var draggableAttr = isPortal ? '' : ' draggable="true" ondragstart="onPostDragStart(event, \'' + esc(item.id) + '\')"';
-          html += '<div class="cal-chip st-border-' + statusClass(item.status) + '"' + draggableAttr + ' onclick="openPostModal(\'' + esc(item.id) + '\')" title="' + esc(item.status + (item.time ? ' • ' + item.time : '') + ' — ' + (item.text || '')) + '">' +
+          html += '<div class="cal-chip st-border-' + statusClass(item.status) + '"' + draggableAttr + ' onclick="openPostModal(\'' + esc(item.id) + '\')" title="' + esc(item.status + ' — ' + (item.text || '')) + '">' +
             thumb +
-            '<span class="cal-chip-text">' + (item.time ? '<strong>' + esc(item.time) + '</strong> ' : '') + esc(item.text || '(No copy)') + '</span>' +
+            '<span class="status-pill st-bg-' + statusClass(item.status) + '">' + esc(item.status) + '</span>' +
+            '<span class="cal-chip-text">' + esc(item.text || '(No copy)') + '</span>' +
           '</div>';
         }
         html += '</div>';
@@ -2368,12 +2404,13 @@
 
         for (var i = 0; i < colPosts.length; i++) {
           var p = colPosts[i];
-          var firstAsset = (p.assets && p.assets.length > 0) ? p.assets[0] : null;
-          var badge = '';
-          if (p.assets && p.assets.length > 1) {
-            badge = '<span class="media-badge">' + p.assets.length + ' items</span>';
+          var cover = postCover(p);
+          var firstAsset = cover ? cover.asset : null;
+          var badge = cover && cover.isRef ? '<span class="media-badge ref">Reference</span>' : '';
+          if (cover && cover.count > 1) {
+            badge += '<span class="media-badge">' + cover.count + ' items</span>';
           } else if (firstAsset && firstAsset.type === 'video') {
-            badge = '<span class="media-badge">Video</span>';
+            badge += '<span class="media-badge">Video</span>';
           }
 
           var draggableAttr = isPortal ? '' : ' draggable="true" ondragstart="onPostDragStart(event, \'' + esc(p.id) + '\')"';
@@ -2445,9 +2482,10 @@
 
       for (var i = 0; i < posts.length; i++) {
         var p = posts[i];
-        var thumb = (p.assets && p.assets.length > 0 && p.assets[0].thumbUrl)
-          ? '<img src="' + esc(p.assets[0].thumbUrl) + '" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:6px;background:var(--surface-muted)">'
-          : (p.assets && p.assets.length > 0
+        var tCover = postCover(p);
+        var thumb = (tCover && tCover.asset.thumbUrl)
+          ? '<img src="' + esc(tCover.asset.thumbUrl) + '" alt="" style="width:38px;height:38px;object-fit:cover;border-radius:6px;background:var(--surface-muted)">'
+          : (tCover
             ? '<div style="width:38px;height:38px;border-radius:6px;background:#0f172a;color:#cbd5e1;display:flex;align-items:center;justify-content:center;font-size:11px">▶</div>'
             : '<div style="width:38px;height:38px;border-radius:6px;background:var(--surface-subtle);border:1px solid var(--border)"></div>');
         var tm = getTeamMember(p.assignee);
@@ -2498,10 +2536,13 @@
         date: defaultDate || STATE.today,
         time: '10:00',
         assets: [],
+        refAssets: [],
         liveUrl: '',
         metrics: { reach: '', likes: '', comments: '', shares: '' },
         assignee: ''
       };
+      if (!EDITOR_POST.refAssets) EDITOR_POST.refAssets = [];
+      STATE.pasteTarget = STATE.mode === 'portal' ? 'ref' : 'final';
       STATE.editorDirty = false;
       STATE.activeModal = 'postEditor';
       STATE.sideTab = 'comments';
@@ -2529,25 +2570,9 @@
           : '<div style="background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);padding:8px 12px;border-radius:var(--radius);font-size:12.5px">No client notification email is set for ' + esc(client ? client.name : 'this client') + '. You can still share the portal link manually.</div>';
       }
 
-      var assetsHtml = '';
-      if (p.assets.length > 0) {
-        assetsHtml = '<div class="asset-strip">';
-        for (var a = 0; a < p.assets.length; a++) {
-          var ast = p.assets[a];
-          assetsHtml += '<div class="asset-card">' +
-            '<a href="' + esc(ast.viewUrl) + '" target="_blank" rel="noopener">' +
-              (ast.thumbUrl ? '<img src="' + esc(ast.thumbUrl) + '" alt="' + esc(ast.name) + '">' : '<div class="video-placeholder">▶ Video</div>') +
-            '</a>' +
-            '<div class="asset-card-controls">' +
-              '<button type="button" class="btn-sm" onclick="moveEditorAsset(' + a + ', -1)" ' + (a === 0 ? 'disabled' : '') + ' title="Move earlier">‹</button>' +
-              '<span style="font-size:11px;color:var(--text-soft);align-self:center">' + (a + 1) + '/' + p.assets.length + '</span>' +
-              '<button type="button" class="btn-sm" onclick="moveEditorAsset(' + a + ', 1)" ' + (a === p.assets.length - 1 ? 'disabled' : '') + ' title="Move later">›</button>' +
-              '<button type="button" class="btn-sm" style="color:var(--danger)" onclick="removeEditorAsset(' + a + ')" title="Remove">✕</button>' +
-            '</div>' +
-          '</div>';
-        }
-        assetsHtml += '</div>';
-      }
+      var portalCanEdit = canPortalEdit(p);
+      var refSection = assetSectionHtml('ref', p, !portal || portalCanEdit);
+      var finalSection = assetSectionHtml('final', p, !portal);
 
       var publishedHtml = '';
       if (!portal && p.status === 'Published') {
@@ -2664,18 +2689,8 @@
                   '<label class="field-label">Post copy</label>' +
                   '<textarea rows="4" placeholder="Write your post caption, hooks, and hashtags…" oninput="syncEditorField(\'text\', this.value)">' + esc(p.text) + '</textarea>' +
                 '</div>' +
-                '<div>' +
-                  '<label class="field-label">Media (carousel order — max 20 MB per image/video)</label>' +
-                  '<div class="dropzone" id="asset-dropzone" onclick="document.getElementById(\'asset-file-input\').click()" ondragover="event.preventDefault();this.classList.add(\'drag-active\')" ondragleave="this.classList.remove(\'drag-active\')" ondrop="handleAssetDrop(event)">' +
-                    '<input type="file" id="asset-file-input" multiple accept="image/*,video/*" style="display:none" onchange="handleAssetFiles(this.files)">' +
-                    '<div id="upload-status-label" style="font-weight:600;color:var(--text-muted)">Tap to upload, drag files here, or paste an image</div>' +
-                  '</div>' +
-                  '<div style="display:flex;gap:6px;margin-top:8px">' +
-                    '<input type="text" id="drive-link-input" placeholder="Or paste a Google Drive link (shared as &quot;Anyone with the link&quot;)…">' +
-                    '<button type="button" class="btn-sm" onclick="addDriveLinkAsset()" style="white-space:nowrap">Add link</button>' +
-                  '</div>' +
-                  assetsHtml +
-                '</div>' +
+                refSection +
+                finalSection +
                 '<div>' +
                   '<label class="field-label">Platforms</label>' +
                   '<div style="display:flex;flex-wrap:wrap;gap:6px">' +
@@ -2710,6 +2725,65 @@
           '</div>' +
         '</div>' +
       '</div>';
+    }
+
+    /* Media section: 'ref' = reference images (brief), 'final' = finished design */
+    function assetSectionHtml(kind, p, editable) {
+      var list = kind === 'ref' ? (p.refAssets || []) : (p.assets || []);
+      var title = kind === 'ref' ? '🖼️ Reference images' : '✅ Final design';
+      var help = kind === 'ref'
+        ? 'Brief, inspiration, logos or photos to work from.'
+        : 'The finished artwork, uploaded once the work is done. This is what the client approves.';
+
+      var strip = '';
+      if (list.length) {
+        strip = '<div class="asset-strip">';
+        for (var a = 0; a < list.length; a++) {
+          var ast = list[a];
+          strip += '<div class="asset-card">' +
+            '<a href="' + esc(ast.viewUrl) + '" target="_blank" rel="noopener">' +
+              (ast.thumbUrl ? '<img src="' + esc(ast.thumbUrl) + '" alt="' + esc(ast.name) + '">' : '<div class="video-placeholder">▶ Video</div>') +
+            '</a>' +
+            (editable
+              ? '<div class="asset-card-controls">' +
+                  '<button type="button" class="btn-sm" onclick="moveEditorAsset(\'' + kind + '\', ' + a + ', -1)" ' + (a === 0 ? 'disabled' : '') + ' title="Move earlier">‹</button>' +
+                  '<span style="font-size:11px;color:var(--text-soft);align-self:center">' + (a + 1) + '/' + list.length + '</span>' +
+                  '<button type="button" class="btn-sm" onclick="moveEditorAsset(\'' + kind + '\', ' + a + ', 1)" ' + (a === list.length - 1 ? 'disabled' : '') + ' title="Move later">›</button>' +
+                  '<button type="button" class="btn-sm" style="color:var(--danger)" onclick="removeEditorAsset(\'' + kind + '\', ' + a + ')" title="Remove">✕</button>' +
+                '</div>'
+              : '') +
+          '</div>';
+        }
+        strip += '</div>';
+      }
+
+      var upload = '';
+      if (editable) {
+        upload = '<div class="dropzone" id="asset-dropzone-' + kind + '" onmouseenter="STATE.pasteTarget=\'' + kind + '\'" onclick="STATE.pasteTarget=\'' + kind + '\';document.getElementById(\'asset-file-input-' + kind + '\').click()" ondragover="event.preventDefault();this.classList.add(\'drag-active\')" ondragleave="this.classList.remove(\'drag-active\')" ondrop="handleAssetDrop(event, \'' + kind + '\')">' +
+            '<input type="file" id="asset-file-input-' + kind + '" multiple accept="image/*,video/*" style="display:none" onchange="handleAssetFiles(this.files, \'' + kind + '\')">' +
+            '<div id="upload-status-label-' + kind + '" style="font-weight:600;color:var(--text-muted);font-size:13px">Tap to upload, drag files here, or paste an image</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            '<input type="text" id="drive-link-input-' + kind + '" placeholder="Or paste a Google Drive link (shared as &quot;Anyone with the link&quot;)…">' +
+            '<button type="button" class="btn-sm" onclick="addDriveLinkAsset(\'' + kind + '\')" style="white-space:nowrap">Add link</button>' +
+          '</div>';
+      } else if (!list.length) {
+        upload = '<div class="asset-empty">' + (kind === 'final' ? 'The final design hasn’t been uploaded yet.' : 'No reference images.') + '</div>';
+      }
+
+      return '<div class="asset-section asset-' + kind + '">' +
+        '<div class="asset-head"><span class="asset-title">' + title + (list.length ? ' <span class="mini-chip">' + list.length + '</span>' : '') + '</span>' +
+        '<span class="asset-help">' + help + (editable ? ' Images are compressed automatically; max 20 MB per file.' : '') + '</span></div>' +
+        upload + strip +
+      '</div>';
+    }
+
+    function editorAssetList(kind) {
+      if (kind === 'ref') {
+        if (!EDITOR_POST.refAssets) EDITOR_POST.refAssets = [];
+        return EDITOR_POST.refAssets;
+      }
+      return EDITOR_POST.assets;
     }
 
     /* Tag picker: one-click library tags plus free-typed extras */
@@ -2796,34 +2870,41 @@
       STATE.editorDirty = true;
       renderPostEditorModal();
     }
-    function moveEditorAsset(idx, dir) {
+    function moveEditorAsset(kind, idx, dir) {
+      var list = editorAssetList(kind);
       var target = idx + dir;
-      if (target < 0 || target >= EDITOR_POST.assets.length) return;
-      var tmp = EDITOR_POST.assets[idx];
-      EDITOR_POST.assets[idx] = EDITOR_POST.assets[target];
-      EDITOR_POST.assets[target] = tmp;
-      STATE.editorDirty = true;
-      renderPostEditorModal();
-    }
-    function removeEditorAsset(idx) {
-      EDITOR_POST.assets.splice(idx, 1);
+      if (target < 0 || target >= list.length) return;
+      var tmp = list[idx];
+      list[idx] = list[target];
+      list[target] = tmp;
       STATE.editorDirty = true;
       renderPostEditorModal();
     }
 
-    function handleAssetDrop(e) {
+    function removeEditorAsset(kind, idx) {
+      editorAssetList(kind).splice(idx, 1);
+      STATE.editorDirty = true;
+      renderPostEditorModal();
+    }
+
+    function handleAssetDrop(e, kind) {
       e.preventDefault();
-      var dz = document.getElementById('asset-dropzone');
+      var dz = document.getElementById('asset-dropzone-' + kind);
       if (dz) dz.classList.remove('drag-active');
       if (e.dataTransfer && e.dataTransfer.files) {
-        handleAssetFiles(e.dataTransfer.files);
+        handleAssetFiles(e.dataTransfer.files, kind);
       }
     }
 
-    function handleAssetFiles(fileList) {
+    function handleAssetFiles(fileList, kind) {
       if (!fileList || fileList.length === 0 || !EDITOR_POST) return;
+      kind = kind === 'ref' ? 'ref' : 'final';
       var files = Array.prototype.slice.call(fileList);
-      var lbl = document.getElementById('upload-status-label');
+      var labelId = 'upload-status-label-' + kind;
+      var setLabel = function(text) {
+        var lbl = document.getElementById(labelId);
+        if (lbl) lbl.textContent = text;
+      };
 
       var seq = Promise.resolve();
       files.forEach(function(file, idx) {
@@ -2832,36 +2913,40 @@
             showToast('Rejected "' + file.name + '": only images and videos are allowed.', 'error');
             return;
           }
-          if (file.size > 20 * 1024 * 1024) {
-            showToast('Rejected "' + file.name + '": exceeds 20 MB limit.', 'error');
-            return;
-          }
-          lbl = document.getElementById('upload-status-label');
-          if (lbl) lbl.textContent = 'Uploading ' + (idx + 1) + ' of ' + files.length + ' (' + file.name + ')…';
-          return callApi('createUpload', {
-            clientId: EDITOR_POST.clientId,
-            name: file.name,
-            mimeType: file.type,
-            size: file.size
-          }).then(function(res) {
-            return uploadToSignedUrl(res.uploadUrl, file).then(function() { return res; });
-          }).then(function(res) {
-            if (!EDITOR_POST) return;
-            EDITOR_POST.assets.push(res.asset);
-            STATE.editorDirty = true;
-            renderPostEditorModal();
+          var prefix = (files.length > 1 ? (idx + 1) + ' of ' + files.length + ': ' : '');
+          setLabel(prefix + (file.type.indexOf('image/') === 0 ? 'Compressing ' : 'Preparing ') + file.name + '…');
+          return compressImage(file).then(function(ready) {
+            if (ready.size > 20 * 1024 * 1024) {
+              showToast('Rejected "' + file.name + '": exceeds 20 MB limit.', 'error');
+              return;
+            }
+            if (ready !== file) {
+              showToast('Compressed ' + file.name + ': ' + formatBytes(file.size) + ' → ' + formatBytes(ready.size), 'success');
+            }
+            setLabel(prefix + 'Uploading ' + ready.name + '…');
+            return callApi('createUpload', {
+              clientId: EDITOR_POST.clientId,
+              name: ready.name,
+              mimeType: ready.type,
+              size: ready.size
+            }).then(function(res) {
+              return uploadToSignedUrl(res.uploadUrl, ready).then(function() { return res; });
+            }).then(function(res) {
+              if (!EDITOR_POST) return;
+              editorAssetList(kind).push(res.asset);
+              STATE.editorDirty = true;
+              renderPostEditorModal();
+            });
           }).catch(function(err) {
             showToast(err.message, 'error');
           });
         });
       });
       seq.then(function() {
-        var finalLbl = document.getElementById('upload-status-label');
-        if (finalLbl) finalLbl.textContent = 'Tap to upload, drag files here, or paste an image';
+        setLabel('Tap to upload, drag files here, or paste an image');
       });
     }
 
-    // Uploads the file straight to Supabase Storage with a one-time signed URL.
     function uploadToSignedUrl(url, file) {
       var fd = new FormData();
       fd.append('cacheControl', '3600');
@@ -2890,18 +2975,20 @@
         }
       }
       if (files.length > 0) {
-        handleAssetFiles(files);
+        var target = STATE.pasteTarget === 'ref' ? 'ref' : 'final';
+        if (STATE.mode === 'portal') target = 'ref';
+        handleAssetFiles(files, target);
       }
     });
 
-    function addDriveLinkAsset() {
-      var inp = document.getElementById('drive-link-input');
+    function addDriveLinkAsset(kind) {
+      var inp = document.getElementById('drive-link-input-' + kind);
       var val = inp ? inp.value.trim() : '';
       if (!val) return;
       inp.disabled = true;
       callApi('resolveDriveLink', { url: val })
         .then(function(res) {
-          EDITOR_POST.assets.push(res.asset);
+          editorAssetList(kind).push(res.asset);
           STATE.editorDirty = true;
           renderPostEditorModal();
           showToast('Added Drive file', 'success');
@@ -3128,19 +3215,26 @@
       STATE.portalPostId = postId;
 
       var mediaHtml = '';
-      if (p.assets && p.assets.length > 0) {
-        mediaHtml = '<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px">';
-        for (var a = 0; a < p.assets.length; a++) {
-          var ast = p.assets[a];
+      var mediaBlock = function(list) {
+        var out = '<div style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px">';
+        for (var a = 0; a < list.length; a++) {
+          var ast = list[a];
           if (ast.src === 'storage' && ast.type === 'video') {
-            mediaHtml += '<video src="' + esc(ast.viewUrl) + '" controls preload="metadata" playsinline style="width:100%;max-height:420px;border-radius:var(--radius);background:#000"></video>';
+            out += '<video src="' + esc(ast.viewUrl) + '" controls preload="metadata" playsinline style="width:100%;max-height:420px;border-radius:var(--radius);background:#000"></video>';
           } else if (ast.type === 'video' || ast.type === 'link') {
-            mediaHtml += '<iframe src="' + esc(ast.previewUrl) + '" style="width:100%;height:320px;border:none;border-radius:var(--radius);background:#000" allow="autoplay"></iframe>';
+            out += '<iframe src="' + esc(ast.previewUrl) + '" style="width:100%;height:320px;border:none;border-radius:var(--radius);background:#000" allow="autoplay"></iframe>';
           } else {
-            mediaHtml += '<a href="' + esc(ast.viewUrl) + '" target="_blank" rel="noopener"><img src="' + esc(ast.thumbUrl) + '" alt="' + esc(ast.name) + '" style="max-width:100%;max-height:380px;border-radius:var(--radius);display:block;margin:0 auto"></a>';
+            out += '<a href="' + esc(ast.viewUrl) + '" target="_blank" rel="noopener"><img src="' + esc(ast.thumbUrl) + '" alt="' + esc(ast.name) + '" style="max-width:100%;max-height:380px;border-radius:var(--radius);display:block;margin:0 auto"></a>';
           }
         }
-        mediaHtml += '</div>';
+        return out + '</div>';
+      };
+      var hasRef = p.refAssets && p.refAssets.length > 0;
+      if (p.assets && p.assets.length > 0) {
+        mediaHtml += (hasRef ? '<div class="asset-title" style="margin-bottom:8px">✅ Final design</div>' : '') + mediaBlock(p.assets);
+      }
+      if (hasRef) {
+        mediaHtml += '<div class="asset-title" style="margin-bottom:8px">🖼️ Reference images</div>' + mediaBlock(p.refAssets);
       }
 
       var postComments = STATE.comments.filter(function(c) { return c.postId === p.id; });
@@ -3244,26 +3338,38 @@
        INVOICES VIEW & EDITOR MODAL
        ======================================================================== */
     function renderClientInvoicesView(client) {
-      var list = STATE.invoices.filter(function(inv) { return inv.clientId === client.id; });
-      list.sort(function(a, b) { return b.number.localeCompare(a.number); });
+      var ids = {};
+      ids[client.id] = true;
+      if (!client.parentId) {
+        STATE.clients.forEach(function(c) { if (c.parentId === client.id) ids[c.id] = true; });
+      }
+      var list = STATE.invoices.filter(function(inv) { return ids[inv.clientId]; });
+      list.sort(function(a, b) { return String(b.issueDate + b.number).localeCompare(String(a.issueDate + a.number)); });
+      var showFor = list.some(function(inv) { return inv.clientId !== client.id; });
 
       var effCurr = client.currency || (client.parentId && getClient(client.parentId) ? getClient(client.parentId).currency : '') || STATE.settings.defaultCurrency || 'USD';
-      var totalInvoiced = 0, totalReceived = 0, totalOutstanding = 0, overdueCount = 0;
-
+      var invoiced = {}, received = {}, outstanding = {};
+      var overdueCount = 0;
+      var add = function(m, cur, v) { m[cur] = (m[cur] || 0) + v; };
       for (var i = 0; i < list.length; i++) {
+        var cur = list[i].currency || effCurr;
         var t = computeInvoiceTotals(list[i]).total;
-        totalInvoiced += t;
-        if (list[i].status === 'Paid') totalReceived += t;
+        add(invoiced, cur, t);
+        if (list[i].status === 'Paid') add(received, cur, t);
         else {
-          totalOutstanding += t;
+          add(outstanding, cur, t);
           if (isInvoiceOverdue(list[i])) overdueCount++;
         }
       }
+      var fmt = function(m) {
+        var ks = Object.keys(m);
+        return ks.length === 0 ? formatCurrency(0, effCurr) : ks.map(function(k) { return formatCurrency(m[k], k); }).join(' · ');
+      };
 
       var html = '<div class="grid-cards" style="margin-bottom:18px">' +
-        '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Invoiced</div><div style="font-size:22px;font-weight:700;margin-top:4px">' + esc(formatCurrency(totalInvoiced, effCurr)) + '</div></div>' +
-        '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Received</div><div style="font-size:22px;font-weight:700;margin-top:4px;color:var(--st-published)">' + esc(formatCurrency(totalReceived, effCurr)) + '</div></div>' +
-        '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Outstanding (' + overdueCount + ' overdue)</div><div style="font-size:22px;font-weight:700;margin-top:4px;color:var(--st-review)">' + esc(formatCurrency(totalOutstanding, effCurr)) + '</div></div>' +
+        '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Invoiced</div><div style="font-size:22px;font-weight:700;margin-top:4px">' + esc(fmt(invoiced)) + '</div></div>' +
+        '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Received</div><div style="font-size:22px;font-weight:700;margin-top:4px;color:var(--st-published)">' + esc(fmt(received)) + '</div></div>' +
+        '<div class="card"><div style="font-size:12px;color:var(--text-muted);font-weight:600">Outstanding (' + overdueCount + ' overdue)</div><div style="font-size:22px;font-weight:700;margin-top:4px;color:var(--st-review)">' + esc(fmt(outstanding)) + '</div></div>' +
       '</div>';
 
       if (list.length === 0) {
@@ -3272,19 +3378,21 @@
       }
 
       html += '<div class="table-wrap"><table class="data-table"><thead><tr>' +
-        '<th>Number</th><th>Issue date</th><th>Due date</th><th>Status</th><th>Total</th><th style="text-align:right">Actions</th>' +
+        '<th>Number</th>' + (showFor ? '<th>For</th>' : '') + '<th>Issue date</th><th>Due date</th><th>Status</th><th>Total</th><th style="text-align:right">Actions</th>' +
       '</tr></thead><tbody>';
 
       for (var j = 0; j < list.length; j++) {
         var inv = list[j];
         var overdue = isInvoiceOverdue(inv);
         var tot = computeInvoiceTotals(inv).total;
+        var forClient = getClient(inv.clientId);
         html += '<tr>' +
-          '<td style="font-weight:600">' + esc(inv.number) + '</td>' +
-          '<td>' + esc(inv.issueDate) + '</td>' +
-          '<td>' + esc(inv.dueDate) + '</td>' +
+          '<td style="font-weight:600;white-space:nowrap">' + esc(inv.number) + '</td>' +
+          (showFor ? '<td style="white-space:nowrap">' + (forClient ? clientDot(forClient) + ' ' + esc(forClient.name) : '') + '</td>' : '') +
+          '<td style="white-space:nowrap">' + esc(inv.issueDate) + '</td>' +
+          '<td style="white-space:nowrap">' + esc(inv.dueDate) + '</td>' +
           '<td><span class="status-pill" style="background:' + (inv.status === 'Paid' ? 'var(--st-published)' : (overdue ? 'var(--danger)' : 'var(--st-review)')) + '">' + esc(overdue ? 'Overdue' : inv.status) + '</span></td>' +
-          '<td style="font-weight:600">' + esc(formatCurrency(tot, inv.currency)) + '</td>' +
+          '<td style="font-weight:600;white-space:nowrap">' + esc(formatCurrency(tot, inv.currency)) + '</td>' +
           '<td style="text-align:right;white-space:nowrap">' +
             '<div style="display:inline-flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">' +
               '<button class="btn-sm" onclick="toggleInvoicePaid(\'' + esc(inv.id) + '\', \'' + (inv.status === 'Paid' ? 'Pending' : 'Paid') + '\')">' + (inv.status === 'Paid' ? 'Mark unpaid' : 'Mark paid') + '</button>' +
