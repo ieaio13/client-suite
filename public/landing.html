@@ -137,7 +137,7 @@
     .btn-primary .arrow { transition: transform 0.25s; }
     .btn-primary:hover .arrow { transform: translateX(4px); }
     .btn-sm { padding: 8px 14px; font-size: 14px; border-radius: 10px; }
-    .icon-btn { padding: 8px 11px; font-size: 14px; border-radius: 10px; background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .icon-btn { padding: 0; width: 38px; height: 38px; font-size: 14px; border-radius: 10px; background: transparent; border: 1px solid var(--border); color: var(--muted); }
 
     /* ---------- Hero ---------- */
     .hero { position: relative; padding: 70px 0 90px; overflow: hidden; }
@@ -181,7 +181,7 @@
     .cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
     .trust { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 30px; color: var(--soft); font-size: 13.5px; font-weight: 500; }
     .trust span { display: inline-flex; align-items: center; gap: 6px; }
-    .trust span::before { content: '✓'; color: var(--accent-3); font-weight: 700; }
+    .trust span::before { content: ''; width: 9px; height: 5px; border-left: 2px solid var(--accent-3); border-bottom: 2px solid var(--accent-3); transform: rotate(-45deg) translateY(-2px); }
 
     /* Product mock */
     .stage { perspective: 1400px; }
@@ -249,7 +249,7 @@
     .feature:hover { transform: translateY(-5px); box-shadow: var(--card-shadow); border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
     .feature:hover::before { opacity: 1; }
     .feature > * { position: relative; }
-    .ficon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; font-size: 22px; margin-bottom: 16px; background: color-mix(in srgb, var(--fc) 16%, transparent); border: 1px solid color-mix(in srgb, var(--fc) 35%, transparent); }
+    .ficon { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; color: var(--fc); margin-bottom: 16px; background: color-mix(in srgb, var(--fc) 16%, transparent); border: 1px solid color-mix(in srgb, var(--fc) 35%, transparent); }
     .feature h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.01em; }
     .feature p { margin: 0; color: var(--muted); font-size: 14.5px; }
 
@@ -332,8 +332,8 @@
       <nav class="nav-links" aria-label="Main">
         <a class="link" href="#features">Features</a>
         <a class="link" href="#how">How it works</a>
-        <button class="btn icon-btn" id="theme-btn" type="button" onclick="cycleTheme()" aria-label="Change theme">🖥️</button>
-        <a class="btn btn-sm" href="/app" id="signin-btn"><span class="signin-text">Sign in</span><span aria-hidden="true">→</span></a>
+        <button class="btn icon-btn" id="theme-btn" type="button" onclick="cycleTheme()" aria-label="Change theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+        <a class="btn btn-sm" href="/app" id="signin-btn"><span class="signin-text">Sign in</span><span aria-hidden="true" class="arrow" style="display:inline-flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
       </nav>
     </div>
   </header>
@@ -356,7 +356,7 @@
           </h1>
           <p class="lead reveal" style="--d:0.16s">Calendars, approvals, client portals and invoices in one calm workspace. Share a link, and your clients review, comment and add posts without another login.</p>
           <div class="cta-row reveal" style="--d:0.24s">
-            <a class="btn btn-primary" href="/app" id="get-started">Get started <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="btn btn-primary" href="/app" id="get-started">Get started <span class="arrow" aria-hidden="true" style="display:inline-flex"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
             <a class="btn" href="#how">See how it works</a>
           </div>
           <div class="trust reveal" style="--d:0.32s"><span>No client logins needed</span><span>Works on any phone</span><span>Light &amp; dark mode</span></div>
@@ -374,9 +374,9 @@
               <div class="col" style="--c:var(--accent)" data-col="2"><h4>Approved <em>1</em></h4></div>
               <div class="col" style="--c:var(--accent-3)" data-col="3"><h4>Published <em>1</em></h4></div>
             </div>
-            <div class="float f1"><span class="ic" style="background:var(--accent-3)">✓</span><div>Client approved<small>Launch reel · just now</small></div></div>
-            <div class="float f2"><span class="ic" style="background:var(--accent)">✉</span><div>Sign-in code<small>New device verified</small></div></div>
-            <div class="float f3"><span class="ic" style="background:var(--accent-2)">₨</span><div>Invoice sent<small>INV-2026-014</small></div></div>
+            <div class="float f1"><span class="ic" style="background:var(--accent-3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><div>Client approved<small>Launch reel · just now</small></div></div>
+            <div class="float f2"><span class="ic" style="background:var(--accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span><div>Sign-in code<small>New device verified</small></div></div>
+            <div class="float f3"><span class="ic" style="background:var(--accent-2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg></span><div>Invoice sent<small>INV-2026-014</small></div></div>
           </div>
         </div>
       </div>
@@ -399,12 +399,12 @@
           <p class="sub">Built for social and content teams who juggle many brands, many approvals and many invoices.</p>
         </div>
         <div class="features">
-          <div class="feature reveal" style="--fc:#3b82f6"><div class="ficon">🗓️</div><h3>Calendar, board &amp; table</h3><p>Drag posts between days and stages. Filter by platform, tag or teammate in a click.</p></div>
-          <div class="feature reveal" style="--fc:#a855f7;--d:0.06s"><div class="ficon">🔗</div><h3>Client portal links</h3><p>One secret link per brand. Choose “view &amp; approve” or let clients add and edit their own posts.</p></div>
-          <div class="feature reveal" style="--fc:#22c55e;--d:0.12s"><div class="ficon">✅</div><h3>One-tap approvals</h3><p>Clients approve or request changes with a note. You get an email the moment they do.</p></div>
-          <div class="feature reveal" style="--fc:#f59e0b"><div class="ficon">🏷️</div><h3>Tags &amp; color-coded clients</h3><p>A reusable tag library and a color for every client, in the order you choose.</p></div>
-          <div class="feature reveal" style="--fc:#ec4899;--d:0.06s"><div class="ficon">🧾</div><h3>Invoices &amp; PDFs</h3><p>Line items, tax and discounts. Generate a PDF and email it to the client in one go.</p></div>
-          <div class="feature reveal" style="--fc:#14b8a6;--d:0.12s"><div class="ficon">🔐</div><h3>Secure by default</h3><p>Role-based access for your team and a 6-digit email code on every new device.</p></div>
+          <div class="feature reveal" style="--fc:#3b82f6"><div class="ficon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg></div><h3>Calendar, board &amp; table</h3><p>Drag posts between days and stages. Filter by platform, tag or teammate in a click.</p></div>
+          <div class="feature reveal" style="--fc:#a855f7;--d:0.06s"><div class="ficon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><h3>Client portal links</h3><p>One secret link per brand. Choose “view &amp; approve” or let clients add and edit their own posts.</p></div>
+          <div class="feature reveal" style="--fc:#22c55e;--d:0.12s"><div class="ficon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div><h3>One-tap approvals</h3><p>Clients approve or request changes with a note. You get an email the moment they do.</p></div>
+          <div class="feature reveal" style="--fc:#f59e0b"><div class="ficon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></svg></div><h3>Tags &amp; color-coded clients</h3><p>A reusable tag library and a color for every client, in the order you choose.</p></div>
+          <div class="feature reveal" style="--fc:#ec4899;--d:0.06s"><div class="ficon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg></div><h3>Invoices &amp; PDFs</h3><p>Line items, tax and discounts. Generate a PDF and email it to the client in one go.</p></div>
+          <div class="feature reveal" style="--fc:#14b8a6;--d:0.12s"><div class="ficon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Secure by default</h3><p>Role-based access for your team and a 6-digit email code on every new device.</p></div>
         </div>
       </div>
     </section>
@@ -428,7 +428,7 @@
         <div class="cta-band reveal">
           <h2>Bring your clients into the flow</h2>
           <p>Sign in to your workspace and share your first portal link in under a minute.</p>
-          <a class="btn btn-primary" href="/app" style="background:#fff;color:#0b1222">Get started <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="btn btn-primary" href="/app" style="background:#fff;color:#0b1222">Get started <span class="arrow" aria-hidden="true" style="display:inline-flex"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span></a>
         </div>
       </div>
     </section>
@@ -446,6 +446,11 @@
     document.getElementById('year').textContent = new Date().getFullYear();
 
     /* ---------- Theme: Auto / Light / Dark (shared with the app) ---------- */
+    var THEME_ICONS = {
+      system: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+      light: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>',
+      dark: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>'
+    };
     function getTheme() {
       try { return localStorage.getItem('cocs_theme') || 'system'; } catch (e) { return 'system'; }
     }
@@ -454,7 +459,7 @@
       else document.documentElement.removeAttribute('data-theme');
       var btn = document.getElementById('theme-btn');
       var label = t === 'dark' ? 'Dark' : (t === 'light' ? 'Light' : 'Auto');
-      btn.textContent = t === 'dark' ? '🌙' : (t === 'light' ? '☀️' : '🖥️');
+      btn.innerHTML = THEME_ICONS[t === 'dark' ? 'dark' : (t === 'light' ? 'light' : 'system')];
       btn.title = 'Theme: ' + label + ' (click to change)';
       btn.setAttribute('aria-label', 'Theme: ' + label + '. Click to change.');
     }

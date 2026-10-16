@@ -1,4 +1,5 @@
-// Web server: serves public/index.html and the API at POST /api/rpc.
+// Web server: serves the landing page (/), the React app (/app), the API (POST /api/rpc)
+// and live-update events (GET /api/events).
 // On cPanel it is started through app.cjs; locally run `npm start`.
 import http from 'node:http';
 import fs from 'node:fs/promises';
@@ -14,8 +15,16 @@ if (typeof process.loadEnvFile === 'function') {
 // Imported after .env is loaded so APP_TIMEZONE etc. are picked up.
 const { dispatch } = await import('./lib/handlers.js');
 const { checkEmail } = await import('./lib/email.js');
+const { isValidTopic, subscribe } = await import('./lib/realtime.js');
 
-const APP_PATH = new URL('./public/index.html', import.meta.url);
+// The built React app (web/ → public/app). Falls back to the older single-file app.
+const APP_DIR = fileURLToPath(new URL('./public/app/', import.meta.url));
+const APP_PATH = new URL('./public/app/index.html', import.meta.url);
+const LEGACY_APP_PATH = new URL('./public/index.html', import.meta.url);
+const MIME = {
+  '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml',
+  '.png': 'image/png', '.woff2': 'font/woff2', '.json': 'application/json', '.ico': 'image/x-icon'
+};
 const LANDING_PATH = new URL('./public/landing.html', import.meta.url);
 const MAX_BODY_BYTES = 1024 * 1024;
 const BASE_HEADERS = {
@@ -88,10 +97,50 @@ async function checkSupabase() {
   return { databaseCheck, storageCheck };
 }
 
+// Live updates over Server-Sent Events. The topic name is the secret.
+function handleEvents(req, res) {
+  const topic = new URL(req.url, 'http://x').searchParams.get('topic') || '';
+  if (!isValidTopic(topic)) return send(res, 404, 'text/plain', 'Not found');
+  res.writeHead(200, {
+    ...BASE_HEADERS,
+    'Content-Type': 'text/event-stream; charset=utf-8',
+    'Cache-Control': 'no-cache, no-transform',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+  res.write('retry: 5000\nevent: hello\ndata: {}\n\n');
+  const unsubscribe = subscribe(topic, res);
+  const ping = setInterval(() => { try { res.write(': ping\n\n'); } catch (e) {} }, 25000);
+  req.on('close', () => { clearInterval(ping); unsubscribe(); });
+}
+
+async function sendAppFile(res, path) {
+  const rel = decodeURIComponent(path.replace(/^\/app\//, ''));
+  if (!/^assets\/[\w.-]+$/.test(rel)) return send(res, 404, 'text/plain', 'Not found');
+  const ext = rel.slice(rel.lastIndexOf('.'));
+  try {
+    const body = await fs.readFile(APP_DIR + rel);
+    // Built files have a content hash in their name, so they can be cached for a year.
+    res.writeHead(200, { ...BASE_HEADERS, 'Content-Type': MIME[ext] || 'application/octet-stream', 'Cache-Control': 'public, max-age=31536000, immutable' });
+    res.end(body);
+  } catch (e) {
+    send(res, 404, 'text/plain', 'Not found');
+  }
+}
+
+async function readAppHtml() {
+  try {
+    return await fs.readFile(APP_PATH);
+  } catch (e) {
+    return fs.readFile(LEGACY_APP_PATH);
+  }
+}
+
 http.createServer(async (req, res) => {
   try {
     const path = (req.url || '/').split('?')[0];
     if (path === '/api/rpc') return await handleRpc(req, res);
+    if (path === '/api/events') return handleEvents(req, res);
     if (path === '/api/health') {
       return sendJson(res, 200, {
         ok: true,
@@ -116,7 +165,12 @@ http.createServer(async (req, res) => {
       return send(res, 200, 'text/html; charset=utf-8', await fs.readFile(LANDING_PATH));
     }
     if (path === '/app' || path === '/app/') {
-      return send(res, 200, 'text/html; charset=utf-8', await fs.readFile(APP_PATH));
+      return send(res, 200, 'text/html; charset=utf-8', await readAppHtml());
+    }
+    if (path.startsWith('/app/assets/')) return await sendAppFile(res, path);
+    // Local preview only (dev/preview.mjs sets PREVIEW_MODE): sample-data script.
+    if (process.env.PREVIEW_MODE === 'true' && path === '/__dev/seed.js') {
+      return send(res, 200, 'text/javascript; charset=utf-8', await fs.readFile(new URL('./dev/seed-browser.js', import.meta.url)));
     }
     if (path === '/favicon.ico') {
       res.writeHead(204, BASE_HEADERS);
@@ -129,5 +183,5 @@ http.createServer(async (req, res) => {
     if (!res.headersSent) send(res, 500, 'text/plain', 'Server error');
   }
 }).listen(Number(process.env.PORT || 3000), () => {
-  console.log('Client Suite running on port ' + (process.env.PORT || 3000));
+  console.log('Clientflow running on port ' + (process.env.PORT || 3000));
 });

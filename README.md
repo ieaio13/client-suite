@@ -1,10 +1,10 @@
-# Client Operations & Content Suite — self-hosted version
+# Clientflow — self-hosted client content suite
 
 Replaces the Google Apps Script + Google Sheet version. It runs as a Node.js app on cPanel at **https://app.arjunkarki1.com.np**.
 
 | Piece | Before | Now |
 |---|---|---|
-| Frontend | `Index.html` served by Apps Script | `public/index.html` (same UI) |
+| Frontend | `Index.html` served by Apps Script | React app in `web/`, built into `public/app` |
 | Backend | `Code.gs` → `google.script.run.api()` | `server.js` + `lib/handlers.js` → `POST /api/rpc` |
 | Startup file for cPanel | — | `app.cjs` |
 | Database | Google Sheet tabs | Supabase Postgres (`supabase/schema.sql`) |
@@ -15,6 +15,32 @@ Replaces the Google Apps Script + Google Sheet version. It runs as a Node.js app
 **Access:**
 - **Team:** email and password sign-in with Admin, Account Manager or Designer roles.
 - **Clients:** "anyone with the link" portal URLs (`/?t=<64-char token>`), which you can create, rotate or turn off per client.
+
+## Pages
+
+- `/`: landing page (`public/landing.html`) with an animated hero and a light/dark toggle. **Get started** goes to `/app`.
+- `/app`: the React app (`public/app`, built from `web/`): team sign-in, workspace, and client portals (`/app?t=<token>`). If `public/app` is missing, the old `public/index.html` is served instead.
+- Old portal links (`/?t=<token>`) redirect to `/app?t=<token>`.
+
+## Update 4: React app (run `supabase/004_board_columns_comment_images.sql` once)
+
+- **Live updates:** changes show up for the team and for open client links without refreshing. This uses a built-in event stream, with Supabase Realtime as an optional extra (set `SUPABASE_ANON_KEY`).
+- **Summary panel** on the right of the calendar, board and table, for both the team and clients. Hide or show it with the panel button.
+- **Client portal:** main client and sub-clients in a sidebar, a task dashboard, Calendar, Board and Invoices.
+- **Invoices in the portal:** **Send** publishes the invoice to the client's portal and emails it if the client has an email address.
+- **Custom board columns per sub-client:** **Add column** on the board. Each column sits after one of the core stages.
+- **Images in comments**, for clients and the team.
+- **Collapsible client list**, icons only (no emoji), and a new design system with light and dark themes.
+
+## Features added in update 2 (run `supabase/002_features.sql` once)
+
+- **Client links with edit access:** each share link is either *View & approve* or *Add & edit*. With edit access, clients can add posts, upload media, and edit posts until they're Scheduled. They can delete only posts they added.
+- **Who added / last updated:** shown on every post, in the editor, the board and the table.
+- **Reorder & color-code clients:** Admins and Account Managers use **↕ Reorder** in the sidebar and pick a color in client settings.
+- **Tag library:** Settings → Tags. Library tags become one-click chips on posts, and renaming a tag updates every post that uses it.
+- **Profile settings:** name, job title, phone, photo, password, and "sign out other devices".
+- **Email sign-in codes:** the first sign-in on a new browser or phone needs a 6-digit code sent to the user's email. The device is then trusted for 30 days. If email isn't configured, codes are skipped so nobody gets locked out. Set `DISABLE_LOGIN_CODES=true` to turn codes off on purpose.
+- **Password eye buttons, mobile layout** (slide-out client list, full-screen editors, swipeable board), **animations** (respect "reduce motion"), and **dark mode** everywhere.
 
 ## Files
 
@@ -54,7 +80,7 @@ Use **Node 20 or newer**. `@supabase/supabase-js` is pinned to 2.109.0, the newe
 Every commit to `main` runs **Deploy to cPanel** (`.github/workflows/deploy.yml`). It uploads only the changed app files over FTPS to `/home/dwaarxco/client-suite`, and touches `tmp/restart.txt` so the app restarts.
 
 - **Edit on GitHub:** open a file → ✏️ → paste → **Commit changes**. It goes live in about a minute; watch it in the **Actions** tab.
-- **Frontend changes** (`public/index.html`) show immediately after the upload, because the server reads the file on every request.
+- **Frontend changes** (`web/src/...`) are rebuilt by the deploy automatically, then show after a page refresh.
 - **Server changes** (`server.js`, `lib/`) need the restart. If one doesn't show, click **Restart** in Setup Node.js App.
 - **If `package.json` changed**, click **Run NPM Install** and then **Restart** in cPanel.
 - **Database changes** (new tables or columns) must be run in Supabase → SQL Editor *before* committing the code that uses them.
@@ -75,6 +101,10 @@ cp env.example .env   # fill in values
 npm install
 npm start              # http://localhost:3000
 ```
+
+To work on the screens with instant reload: `cd web && npm install && npm run dev` (opens on port 5173 and forwards `/api` to the server on 4321). `npm run build` writes `public/app`.
+
+To try everything without Supabase or email, run `node dev/preview.mjs` and open http://localhost:4321. It uses in-memory data that is lost when it stops.
 
 ## Moving data from the old Sheet
 
