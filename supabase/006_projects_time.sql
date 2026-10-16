@@ -1,4 +1,4 @@
--- Clientflow update 6: projects, tasks and time tracking.
+-- Flokey update 6: projects, tasks and time tracking.
 -- Run once in Supabase → SQL Editor (after 005_workspaces.sql). Safe to run again.
 -- Only adds new tables; nothing existing is changed.
 

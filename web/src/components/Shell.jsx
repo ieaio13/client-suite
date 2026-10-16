@@ -14,7 +14,7 @@ export function TopBar({ name, nav, right, onMenu }) {
     <header className="topbar">
       <div className="row" style={{ minWidth: 0 }}>
         {onMenu && <button type="button" className="btn btn-ghost btn-icon only-mobile" onClick={onMenu} aria-label="Open menu"><Menu /></button>}
-        <span className="brand"><Logo /><span className="hide-mobile ellipsis" style={{ maxWidth: 220 }}>{name}</span></span>
+        <span className="brand"><Logo />{name && name !== 'Flokey' && <><span className="brand-sep hide-mobile" aria-hidden="true" /><span className="hide-mobile ellipsis brand-name" style={{ maxWidth: 220 }}>{name}</span></>}</span>
         {nav}
       </div>
       <div className="row">{right}<ThemeButton /></div>

@@ -4,8 +4,9 @@ import { deviceLabel, devices, rpc } from '../lib/api.js';
 import { Field, PasswordInput, ThemeButton, useUi } from '../components/ui.jsx';
 import { cx } from '../lib/util.js';
 
-export function Logo() {
-  return <span className="logo" aria-hidden="true"><span /><span /><span /><span /><span /></span>;
+// Flokey wordmark (rounded geometric type, Quicksand Bold).
+export function Logo({ small }) {
+  return <span className={small ? 'wordmark sm' : 'wordmark'}>Flokey</span>;
 }
 
 function AuthCard({ agencyName, shake, children }) {
@@ -13,7 +14,7 @@ function AuthCard({ agencyName, shake, children }) {
     <div className="auth">
       <div className={cx('card auth-card', shake && 'shake')} key={shake || 'card'}>
         <div className="row-between">
-          <span className="brand"><Logo />{agencyName || 'Clientflow'}</span>
+          <span className="brand"><Logo />{agencyName && agencyName !== 'Flokey' && <><span className="brand-sep" aria-hidden="true" /><span className="ellipsis">{agencyName}</span></>}</span>
           <ThemeButton />
         </div>
         {children}

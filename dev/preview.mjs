@@ -30,7 +30,7 @@ Object.assign(process.env, {
   SMTP_PORT: String(SMTP_PORT),
   SMTP_USER: 'noreply@preview.test',
   SMTP_PASS: 'preview',
-  MAIL_FROM: 'Clientflow <noreply@preview.test>',
+  MAIL_FROM: 'Flokey <noreply@preview.test>',
   PREVIEW_MODE: 'true'
 });
 

@@ -1,4 +1,4 @@
--- Clientflow update 2: client editing, who-added tracking, client order & colors,
+-- Flokey update 2: client editing, who-added tracking, client order & colors,
 -- tag library, profiles, and email sign-in codes for new devices.
 -- Run once in Supabase → SQL Editor. Safe to run again; existing data is kept.
 

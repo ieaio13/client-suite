@@ -1,4 +1,4 @@
--- Clientflow update 3: separate "reference images" (brief / inspiration) from the
+-- Flokey update 3: separate "reference images" (brief / inspiration) from the
 -- existing "assets", which are now shown as the final design.
 -- Run once in Supabase → SQL Editor. Safe to run again; existing data is kept.
 

@@ -1,4 +1,4 @@
--- Clientflow update 5: workspaces, so other agencies can sign up and get their own
+-- Flokey update 5: workspaces, so other agencies can sign up and get their own
 -- separate space, with a free trial and plan limits.
 -- Run once in Supabase → SQL Editor. Safe to run again.
 -- Everything you already have becomes the first workspace, 'ws_main', on the

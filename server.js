@@ -230,5 +230,5 @@ http.createServer(async (req, res) => {
     if (!res.headersSent) send(res, 500, 'text/plain', 'Server error');
   }
 }).listen(Number(process.env.PORT || 3000), () => {
-  console.log('Clientflow running on port ' + (process.env.PORT || 3000));
+  console.log('Flokey running on port ' + (process.env.PORT || 3000));
 });

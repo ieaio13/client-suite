@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Clientflow</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%231f5fd6%27/%3E%3Crect x=%277%27 y=%2712%27 width=%273%27 height=%2710%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2712%27 y=%279%27 width=%273%27 height=%2714%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2717%27 y=%277%27 width=%273%27 height=%2718%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2722%27 y=%2711%27 width=%273%27 height=%2711%27 rx=%271.5%27 fill=%27white%27/%3E%3C/svg%3E">
+  <title>Flokey</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%231d1d1f%27/%3E%3Cpath d=%27M12 9h9M12 9v14M12 16h7%27 stroke=%27white%27 stroke-width=%273.4%27 stroke-linecap=%27round%27 fill=%27none%27/%3E%3C/svg%3E">
   <script>
     try {
       var savedTheme = localStorage.getItem('cocs_theme');
@@ -1069,7 +1069,7 @@
     var STATE = {
       mode: 'loading', // 'setup' | 'login' | 'agency' | 'portal'
       clientToken: '',
-      agencyName: 'Clientflow',
+      agencyName: 'Flokey',
       user: null,
       webAppUrl: '',
       today: '',
@@ -1450,7 +1450,7 @@
 
     function applyBootState(data) {
       STATE.mode = data.mode;
-      STATE.agencyName = data.agencyName || 'Clientflow';
+      STATE.agencyName = data.agencyName || 'Flokey';
       if (data.authError) STATE.authMessage = data.authError;
 
       if (data.mode === 'agency') {

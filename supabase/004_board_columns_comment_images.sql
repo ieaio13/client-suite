@@ -1,4 +1,4 @@
--- Clientflow update 4: custom board columns per sub-client, and images on comments.
+-- Flokey update 4: custom board columns per sub-client, and images on comments.
 -- Run once in Supabase → SQL Editor. Safe to run again; existing data is kept.
 
 -- Extra board columns for one brand (e.g. "Shooting", "Editing"). Each sits right after

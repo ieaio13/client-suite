@@ -4,15 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Clientflow</title>
+  <title>Flokey</title>
   <meta name="description" content="Plan content, get approvals, run projects and send invoices in one calm workspace.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%230071e3%27/%3E%3Crect x=%277%27 y=%2712%27 width=%273%27 height=%2710%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2712%27 y=%279%27 width=%273%27 height=%2714%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2717%27 y=%277%27 width=%273%27 height=%2718%27 rx=%271.5%27 fill=%27white%27/%3E%3Crect x=%2722%27 y=%2711%27 width=%273%27 height=%2711%27 rx=%271.5%27 fill=%27white%27/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%231d1d1f%27/%3E%3Cpath d=%27M12 9h9M12 9v14M12 16h7%27 stroke=%27white%27 stroke-width=%273.4%27 stroke-linecap=%27round%27 fill=%27none%27/%3E%3C/svg%3E">
   <script>
     try {
       var savedTheme = localStorage.getItem('cocs_theme');
       if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.setAttribute('data-theme', savedTheme);
     } catch (e) {}
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #ffffff;
@@ -23,9 +26,10 @@
       --soft: #86868b;
       --line: #d2d2d7;
       --hair: rgba(0, 0, 0, 0.08);
-      --accent: #0071e3;
-      --accent-hover: #0077ed;
-      --link: #0066cc;
+      --accent: #1d1d1f;
+      --accent-hover: #000000;
+      --on-accent: #ffffff;
+      --link: #1d1d1f;
       --green: #34c759;
       --orange: #ff9500;
       --purple: #af52de;
@@ -47,9 +51,10 @@
       --soft: #86868b;
       --line: #424245;
       --hair: rgba(255, 255, 255, 0.1);
-      --accent: #0a84ff;
-      --accent-hover: #409cff;
-      --link: #2997ff;
+      --accent: #f5f5f7;
+      --accent-hover: #ffffff;
+      --on-accent: #000000;
+      --link: #f5f5f7;
       --glass: rgba(22, 22, 23, 0.72);
       --shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
       --win: #1c1c1e;
@@ -67,9 +72,10 @@
         --soft: #86868b;
         --line: #424245;
         --hair: rgba(255, 255, 255, 0.1);
-        --accent: #0a84ff;
-        --accent-hover: #409cff;
-        --link: #2997ff;
+        --accent: #f5f5f7;
+        --accent-hover: #ffffff;
+        --on-accent: #000000;
+        --link: #f5f5f7;
         --glass: rgba(22, 22, 23, 0.72);
         --shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
         --win: #1c1c1e;
@@ -92,10 +98,10 @@
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 44px; padding: 0 22px; border-radius: 999px; border: 0;
       font: inherit; font-size: 17px; font-weight: 400; cursor: pointer; white-space: nowrap; transition: background-color 0.2s, transform 0.15s, opacity 0.2s; }
     .btn:active { transform: scale(0.97); }
-    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-plain { background: transparent; color: var(--link); padding: 0 12px; }
-    .btn-plain:hover { text-decoration: underline; }
+    .btn-plain:hover { text-decoration: underline; text-underline-offset: 4px; }
     .btn-sm { height: 30px; padding: 0 14px; font-size: 13px; }
     .chev { display: inline-block; transition: transform 0.2s; }
     a:hover .chev { transform: translateX(3px); }
@@ -105,14 +111,9 @@
       -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
     .nav.scrolled { border-bottom-color: var(--hair); }
     .nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
-    .logo { display: inline-flex; align-items: flex-end; gap: 2px; height: 17px; }
-    .logo i { width: 3.5px; border-radius: 2px; display: block; }
-    .logo i:nth-child(1) { height: 9px; background: #8e8e93; }
-    .logo i:nth-child(2) { height: 13px; background: var(--orange); }
-    .logo i:nth-child(3) { height: 17px; background: var(--accent); }
-    .logo i:nth-child(4) { height: 13px; background: var(--purple); }
-    .logo i:nth-child(5) { height: 10px; background: var(--green); }
+    .brand { display: flex; align-items: center; }
+    .wordmark { font-family: 'Quicksand', var(--font); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+    .brand .wordmark { font-size: 22px; }
     .nav-links { display: flex; align-items: center; gap: 28px; font-size: 13px; color: var(--muted); }
     .nav-links a:hover { color: var(--text); }
     .nav-right { display: flex; align-items: center; gap: 10px; }
@@ -123,8 +124,7 @@
 
     /* ---------- Hero ---------- */
     .hero { text-align: center; padding: 96px 0 0; overflow: hidden; }
-    .eyebrow { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 6px; background: linear-gradient(90deg, #0071e3, #af52de 55%, #ff2d55);
-      -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .eyebrow { font-family: 'Quicksand', var(--font); font-size: 26px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 10px; color: var(--text); }
     .hero h1 { margin: 0 auto; max-width: 900px; font-size: clamp(48px, 8.4vw, 96px); line-height: 1.02; font-weight: 700; letter-spacing: -0.045em; }
     .hero h1 .soft-line { color: var(--soft); }
     .hero .lead { margin: 24px auto 0; max-width: 640px; font-size: clamp(19px, 2.2vw, 24px); line-height: 1.35; color: var(--muted); font-weight: 400; letter-spacing: -0.02em; }
@@ -142,7 +142,7 @@
     .win-body { display: grid; grid-template-columns: 210px 1fr; min-height: 470px; }
     .win-side { background: var(--win-side); border-right: 1px solid var(--hair); padding: 14px 10px; }
     .side-item { display: flex; align-items: center; gap: 9px; height: 30px; padding: 0 10px; border-radius: 8px; color: var(--text); font-weight: 500; }
-    .side-item svg { color: var(--accent); }
+    .side-item svg { color: var(--muted); }
     .side-item.on { background: rgba(120, 120, 128, 0.2); }
     .side-head { font-size: 11px; font-weight: 600; color: var(--soft); padding: 16px 10px 6px; }
     .cdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
@@ -197,7 +197,7 @@
     .url svg { color: var(--green); }
     .access { display: flex; gap: 8px; }
     .access span { flex: 1; text-align: center; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 500; background: var(--bg-2); }
-    .access span.on { background: var(--accent); color: #fff; }
+    .access span.on { background: var(--accent); color: var(--on-accent); }
 
     .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .lane { background: var(--bg-2); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 150px; }
@@ -247,7 +247,7 @@
     .plan li svg { margin-top: 3px; color: var(--green); }
     .plan .btn { width: 100%; background: var(--bg-2); color: var(--text); }
     .plan .btn:hover { background: var(--line); }
-    .plan .btn.btn-primary { background: var(--accent); color: #fff; }
+    .plan .btn.btn-primary { background: var(--accent); color: var(--on-accent); }
     .plan .btn.btn-primary:hover { background: var(--accent-hover); }
     .price-note { text-align: center; color: var(--soft); font-size: 14px; margin: 28px 0 0; }
 
@@ -296,7 +296,7 @@
 <body>
   <header class="nav" id="nav">
     <div class="wrap">
-      <a class="brand" href="#top" aria-label="Clientflow home"><span class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>Clientflow</a>
+      <a class="brand" href="#top" aria-label="Flokey home"><span class="wordmark">Flokey</span></a>
       <nav class="nav-links" aria-label="Main">
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
@@ -313,7 +313,7 @@
   <main id="top">
     <section class="hero" style="padding-bottom:0">
       <div class="wrap">
-        <p class="eyebrow reveal">Clientflow</p>
+        <p class="eyebrow reveal">Flokey</p>
         <h1 class="reveal" style="--d:0.06s">Client work.<br><span class="soft-line">Beautifully in flow.</span></h1>
         <p class="lead reveal" style="--d:0.12s">Plan content, get approvals, run projects and send invoices, all in one calm workspace your clients will actually enjoy using.</p>
         <div class="cta reveal" style="--d:0.18s">
@@ -324,10 +324,10 @@
       </div>
 
       <div class="stage reveal" style="--d:0.2s">
-        <div class="window" id="window" role="img" aria-label="Preview of the Clientflow workspace">
+        <div class="window" id="window" role="img" aria-label="Preview of the Flokey workspace">
           <div class="win-bar">
             <span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span>
-            <span class="title">Clientflow</span>
+            <span class="title wordmark" style="font-size:15px">Flokey</span>
             <span style="width:52px"></span>
           </div>
           <div class="win-body">
@@ -394,7 +394,7 @@
             <h3>One link. No logins.</h3>
             <p>Each client gets a private link to review, comment, and even add their own posts.</p>
             <div class="art link-art" aria-hidden="true">
-              <div class="url"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>app.clientflow/portal/acme</div>
+              <div class="url"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>flokey.app/portal/acme</div>
               <div class="access"><span>View &amp; approve</span><span class="on">Add &amp; edit</span></div>
             </div>
           </div>
@@ -478,7 +478,7 @@
 
   <footer>
     <div class="wrap foot">
-      <span>Copyright © <span id="year">2026</span> Clientflow. All rights reserved.</span>
+      <span>Copyright © <span id="year">2026</span> Flokey. All rights reserved.</span>
       <span class="links"><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="/app">Sign in</a></span>
     </div>
   </footer>

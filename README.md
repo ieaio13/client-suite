@@ -1,4 +1,4 @@
-# Clientflow — self-hosted client content suite
+# Flokey — self-hosted client content suite
 
 Replaces the Google Apps Script + Google Sheet version. It runs as a Node.js app on cPanel at **https://app.arjunkarki1.com.np**.
 
