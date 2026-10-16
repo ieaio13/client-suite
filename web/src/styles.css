@@ -365,14 +365,15 @@ table.table { width: 100%; border-collapse: collapse; font-size: 14px; }
 
 /* ---------- Popover / menu ---------- */
 .pop-anchor { position: relative; display: inline-flex; }
-.popover { position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; min-width: 220px; padding: 6px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-lg); animation: pop 0.16s both; }
-.popover.left { right: auto; left: 0; }
+.popover { position: fixed; z-index: 120; max-height: calc(100vh - 16px); overflow-y: auto; min-width: 220px; padding: 6px; border-radius: var(--r-md); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-lg); animation: pop 0.16s both; }
 .popover.pad { padding: 14px; display: flex; flex-direction: column; gap: 12px; width: 280px; }
 .menu-item { width: 100%; display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; font-size: 14px; color: var(--text); cursor: pointer; text-align: left; }
 .menu-item svg { width: 16px; height: 16px; color: var(--muted); }
 .menu-item:hover { background: var(--hover); }
 .menu-item.danger, .menu-item.danger svg { color: var(--danger); }
 .menu-sep { height: 1px; background: var(--border); margin: 4px 0; }
+.link-btn { padding: 0; border: 0; background: none; font: inherit; color: var(--text); cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color 0.15s; }
+.link-btn:hover, .link-btn:focus-visible { color: var(--accent); text-decoration-color: currentColor; }
 
 /* ---------- Calendar ---------- */
 .cal-head { display: flex; align-items: center; gap: 8px; }

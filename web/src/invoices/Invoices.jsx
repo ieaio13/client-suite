@@ -106,7 +106,7 @@ export function InvoiceList({ client }) {
             <tbody>
               {list.map((inv) => (
                 <tr key={inv.id}>
-                  <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{inv.number}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}><button type="button" className="link-btn" style={{ fontWeight: 600 }} onClick={() => setEditing(inv)} title={'Edit invoice ' + inv.number}>{inv.number}</button></td>
                   {showFor && <td style={{ whiteSpace: 'nowrap' }}><span className="row" style={{ gap: 6 }}><Dot color={byId[inv.clientId] && byId[inv.clientId].color} size={8} />{byId[inv.clientId] ? byId[inv.clientId].name : ''}</span></td>}
                   <td className="num" style={{ whiteSpace: 'nowrap' }}>{shortDate(inv.issueDate)}</td>
                   <td className="num" style={{ whiteSpace: 'nowrap' }}>{shortDate(inv.dueDate)}</td>
@@ -114,6 +114,7 @@ export function InvoiceList({ client }) {
                   <td className="num" style={{ textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>{money(invoiceTotals(inv).total, inv.currency)}</td>
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                     <div className="row" style={{ justifyContent: 'flex-end', gap: 6 }}>
+                      <button type="button" className="btn btn-sm" onClick={() => setEditing(inv)}><Pencil />Edit</button>
                       <button type="button" className="btn btn-sm" disabled={busyId === inv.id} onClick={() => send(inv)}><Send />{inv.sentAt ? 'Resend' : 'Send'}</button>
                       <Popover trigger={({ toggle }) => <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={toggle} aria-label={'More actions for ' + inv.number}><Ellipsis /></button>}>
                         {({ close }) => (<>

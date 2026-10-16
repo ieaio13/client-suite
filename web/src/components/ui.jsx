@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CircleAlert, CircleCheck, Eye, EyeOff, Info, Monitor, Moon, Sun, X } from 'lucide-react';
 import { cx, initials, statusClass } from '../lib/util.js';
@@ -139,18 +139,51 @@ export function Popover({ trigger, children, align, pad, open: controlled, onOpe
   const open = controlled !== undefined ? controlled : inner;
   const setOpen = (v) => { if (onOpenChange) onOpenChange(v); else setInner(v); };
   const ref = useRef(null);
+  const popRef = useRef(null);
+  const [pos, setPos] = useState(null);
   useEffect(() => {
     if (!open) return undefined;
-    const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    const onDoc = (e) => {
+      if (ref.current && ref.current.contains(e.target)) return;
+      if (popRef.current && popRef.current.contains(e.target)) return;
+      setOpen(false);
+    };
     const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
     document.addEventListener('mousedown', onDoc);
     document.addEventListener('keydown', onKey);
     return () => { document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
   }); // eslint-disable-line react-hooks/exhaustive-deps
+  // Rendered at the end of <body> with fixed positioning, so scrolling tables and
+  // cards can't clip the menu. Opens upward when there isn't room below.
+  useLayoutEffect(() => {
+    if (!open) { setPos(null); return undefined; }
+    const place = () => {
+      if (!ref.current) return;
+      const a = ref.current.getBoundingClientRect();
+      const p = popRef.current ? popRef.current.getBoundingClientRect() : { width: 220, height: 0 };
+      const vw = window.innerWidth, vh = window.innerHeight, gap = 6;
+      let left = align === 'left' ? a.left : a.right - p.width;
+      left = Math.max(8, Math.min(left, vw - p.width - 8));
+      let top = a.bottom + gap;
+      if (top + p.height > vh - 8 && a.top - gap - p.height >= 8) top = a.top - gap - p.height;
+      setPos({ top, left });
+    };
+    place();
+    const raf = requestAnimationFrame(place);
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', place); window.removeEventListener('scroll', place, true); };
+  }, [open, align]);
   return (
     <div className="pop-anchor" ref={ref}>
       {trigger({ open, toggle: () => setOpen(!open) })}
-      {open && <div className={cx('popover', align === 'left' && 'left', pad && 'pad')}>{typeof children === 'function' ? children({ close: () => setOpen(false) }) : children}</div>}
+      {open && createPortal(
+        <div ref={popRef} className={cx('popover', pad && 'pad')}
+          style={pos ? { top: pos.top, left: pos.left } : { top: -9999, left: -9999 }}>
+          {typeof children === 'function' ? children({ close: () => setOpen(false) }) : children}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
