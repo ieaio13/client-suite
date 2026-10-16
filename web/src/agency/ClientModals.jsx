@@ -20,7 +20,7 @@ export function ClientModal({ client, parentId, onClose }) {
     e.preventDefault();
     setBusy(true);
     try {
-      const r = await rpc('saveClient', { id: client ? client.id : '', parentId: d.parentId, name: d.name, notifyEmail: d.notifyEmail, currency: d.currency, color: d.color });
+      const r = await rpc('saveClient', { id: client ? client.id : '', parentId: d.parentId, name: d.name, notifyEmail: d.notifyEmail, currency: d.currency, color: d.color, timeTracking: Boolean(d.timeTracking) });
       patch((x) => ({ ...x, clients: upsert(x.clients, r.client) }));
       toast(isNew ? 'Client added' : 'Client saved', 'success');
       onClose();
@@ -69,6 +69,13 @@ export function ClientModal({ client, parentId, onClose }) {
             </div>
           </Field>
         </div>
+        <label className="switch-row">
+          <span className="grow">
+            <span style={{ fontWeight: 500, display: 'block' }}>Time tracking</span>
+            <span className="hint">Shows a timer and hour logging on this client's projects, so hours can be invoiced.</span>
+          </span>
+          <input type="checkbox" className="switch" checked={Boolean(d.timeTracking)} onChange={(e) => set('timeTracking', e.target.checked)} />
+        </label>
         {!isNew && (
           <>
             <hr className="divider" />

@@ -30,7 +30,11 @@ function cascadeDelete(t, row) {
   };
   if (t === 'clients') {
     del('clients', (r) => r.parent_id === row.id);
-    for (const tt of ['posts', 'comments', 'activity', 'invoices', 'board_columns']) del(tt, (r) => r.client_id === row.id);
+    for (const tt of ['posts', 'comments', 'activity', 'invoices', 'board_columns', 'projects']) del(tt, (r) => r.client_id === row.id);
+  }
+  if (t === 'projects') {
+    del('tasks', (r) => r.project_id === row.id);
+    del('time_entries', (r) => r.project_id === row.id);
   }
   if (t === 'posts') del('comments', (r) => r.post_id === row.id);
   if (t === 'team') {

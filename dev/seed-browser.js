@@ -71,6 +71,27 @@ async function seedPreview() {
   await rpc('addComment', A, { postId: autumn.id, text: 'Copy is final. Waiting on the client to approve.' });
   await rpc('saveInvoice', A, { clientId: acme.id, items: [{ description: 'Monthly social media retainer (Coffee + Tea)', qty: '1', rate: '65000' }], taxPct: '13', notes: 'Thank you!' });
   await rpc('saveInvoice', A, { clientId: zeta.id, items: [{ description: 'Launch campaign', qty: '1', rate: '30000' }], issueDate: D(-30), dueDate: D(-10) });
+  // Projects, tasks and hours (time tracking switched on for two clients)
+  await rpc('saveClient', A, { id: coffee.id, name: coffee.name, color: coffee.color, timeTracking: true });
+  await rpc('saveClient', A, { id: zeta.id, name: zeta.name, color: zeta.color, notifyEmail: 'hello@zeta.example', timeTracking: true });
+  const site = (await rpc('saveProject', A, { clientId: coffee.id, name: 'Website redesign', status: 'Active', startDate: D(-20), dueDate: D(12), budget: '150000', owner: email, description: 'New Shopify site with online ordering and a loyalty page.' })).project;
+  const brand = (await rpc('saveProject', A, { clientId: zeta.id, name: 'Brand refresh', status: 'Planning', dueDate: D(30), budget: '80000', owner: email })).project;
+  await rpc('saveProject', A, { clientId: tea.id, name: 'Tea festival campaign', status: 'Done', dueDate: D(-5) });
+  const T = async (projectId, title, status, extra) => (await rpc('saveTask', A, { projectId, title, status, ...(extra || {}) })).task;
+  const wire = await T(site.id, 'Wireframes for all pages', 'Done', { estimateHours: '8', assignee: email });
+  const home = await T(site.id, 'Homepage design', 'In progress', { estimateHours: '10', assignee: email, dueDate: D(2) });
+  await T(site.id, 'Product page copy', 'To do', { dueDate: D(-1), assignee: email });
+  await T(site.id, 'Set up Shopify payments', 'To do', { estimateHours: '3' });
+  await T(site.id, 'Client review of homepage', 'Review', { dueDate: D(4) });
+  await T(brand.id, 'Moodboard', 'To do', { assignee: email, dueDate: D(5) });
+  await T(brand.id, 'Logo concepts', 'To do', { estimateHours: '12' });
+  const H = (projectId, taskId, off, minutes, note, billable) => rpc('saveTimeEntry', A, { projectId, taskId, date: D(off), minutes, note, billable: billable !== false });
+  await H(site.id, wire.id, -6, 240, 'Wireframes v1');
+  await H(site.id, wire.id, -5, 150, 'Revisions after call');
+  await H(site.id, home.id, -2, 180, 'Hero and menu');
+  await H(site.id, home.id, -1, 90, 'Mobile layout');
+  await H(site.id, '', -3, 60, 'Kickoff meeting', false);
+  await H(brand.id, '', -1, 45, 'Discovery call');
   const editLink = await rpc('manageClientToken', A, { clientId: acme.id, mode: 'create', access: 'edit' });
   const viewLink = await rpc('manageClientToken', A, { clientId: zeta.id, mode: 'create', access: 'view' });
   return {

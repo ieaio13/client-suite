@@ -106,22 +106,42 @@ async function checkSupabase() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return { databaseCheck: 'not configured', storageCheck: 'not configured' };
   }
-  const { db, BUCKET } = await import('./lib/db.js');
+  const { rawDb, BUCKET } = await import('./lib/db.js');
   let databaseCheck = 'ok';
   let storageCheck = 'ok';
+  let databaseUpdates = 'ok';
   try {
-    const res = await db().from('settings').select('key').limit(1);
+    const res = await rawDb().from('settings').select('key').limit(1);
     if (res.error) databaseCheck = 'error: ' + describeError(res.error);
   } catch (e) {
     databaseCheck = 'error: ' + describeError(e);
   }
+  // Each check is a column or table added by one of the supabase/00x_*.sql files.
+  if (databaseCheck === 'ok') {
+    const needed = [
+      ['004_board_columns_comment_images.sql', () => rawDb().from('board_columns').select('id').limit(1)],
+      ['005_workspaces.sql', () => rawDb().from('team').select('workspace_id').limit(1)],
+      ['005_workspaces.sql', () => rawDb().from('workspaces').select('id').limit(1)],
+      ['006_projects_time.sql', () => rawDb().from('time_entries').select('id').limit(1)]
+    ];
+    const missing = [];
+    for (const [file, run] of needed) {
+      try {
+        const res = await run();
+        if (res.error && !missing.includes(file)) missing.push(file);
+      } catch (e) {
+        if (!missing.includes(file)) missing.push(file);
+      }
+    }
+    if (missing.length) databaseUpdates = 'run in Supabase SQL Editor: ' + missing.join(', ');
+  }
   try {
-    const res = await db().storage.getBucket(BUCKET);
+    const res = await rawDb().storage.getBucket(BUCKET);
     if (res.error) storageCheck = 'error: ' + describeError(res.error);
   } catch (e) {
     storageCheck = 'error: ' + describeError(e);
   }
-  return { databaseCheck, storageCheck };
+  return { databaseCheck, databaseUpdates, storageCheck };
 }
 
 // Live updates over Server-Sent Events. The topic name is the secret.

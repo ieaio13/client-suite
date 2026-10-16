@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, LayoutDashboard, Plus, Settings as SettingsIcon } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight, Clock, FolderKanban, LayoutDashboard, Plus, Settings as SettingsIcon } from 'lucide-react';
 import { rpc } from '../lib/api.js';
 import { useData } from '../data.jsx';
 import { go, useRoute } from '../lib/route.js';
@@ -10,6 +10,10 @@ import Overview from './Overview.jsx';
 import { ParentPage, BrandPage } from './ClientPages.jsx';
 import Settings from './Settings.jsx';
 import { PlanBanner } from './Plan.jsx';
+import ProjectsPage from '../work/Projects.jsx';
+import ProjectPage from '../work/ProjectPage.jsx';
+import TimePage from '../work/TimePage.jsx';
+import { TimerBadge } from '../work/Timer.jsx';
 import { ClientModal } from './ClientModals.jsx';
 
 const OPEN_KEY = 'cf_tree_closed';
@@ -26,7 +30,11 @@ export default function AgencyApp() {
 
   const client = route.page === 'client' ? data.clients.find((c) => c.id === route.id) : null;
   let content;
+  const project = route.page === 'project' ? (data.projects || []).find((p) => p.id === route.id) : null;
   if (route.page === 'settings') content = <Settings tab={route.id || 'profile'} />;
+  else if (route.page === 'projects') content = <ProjectsPage clientId={route.id} />;
+  else if (project) content = <ProjectPage project={project} />;
+  else if (route.page === 'time') content = <TimePage />;
   else if (client && !client.parentId) content = <ParentPage client={client} onAddSub={() => setNewClient({ parentId: client.id })} />;
   else if (client) content = <BrandPage client={client} view={route.sub || 'calendar'} />;
   else content = <Overview />;
@@ -41,6 +49,7 @@ export default function AgencyApp() {
           </nav>
         )}
         right={(<>
+          <TimerBadge />
           <LiveBadge mode={liveMode} />
           <button type="button" className="btn btn-ghost" style={{ padding: '0 6px' }} onClick={() => go('settings', 'profile')} title="Your profile">
             <Avatar person={data.user} /><span className="hide-mobile" style={{ fontWeight: 500 }}>{data.user.name}</span>
@@ -48,7 +57,7 @@ export default function AgencyApp() {
         </>)} />
       <PlanBanner />
       <div className="shell">
-        <Sidebar open={drawer} activeId={client ? client.id : ''} onAdd={(parentId) => setNewClient({ parentId: parentId || '' })} />
+        <Sidebar open={drawer} page={client ? 'client' : route.page === 'project' ? 'projects' : route.page} activeId={client ? client.id : ''} onAdd={(parentId) => setNewClient({ parentId: parentId || '' })} />
         {drawer && <div className="drawer-overlay only-mobile" onClick={() => setDrawer(false)} />}
         {content}
       </div>
@@ -57,7 +66,7 @@ export default function AgencyApp() {
   );
 }
 
-function Sidebar({ open, activeId, onAdd }) {
+function Sidebar({ open, page, activeId, onAdd }) {
   const { data, patch } = useData();
   const { toast } = useUi();
   const [closed, setClosed] = useState(readClosed);
@@ -66,6 +75,7 @@ function Sidebar({ open, activeId, onAdd }) {
   const visible = (c) => showArchived || !c.archived;
   const parents = useMemo(() => sortClients(data.clients.filter((c) => !c.parentId && visible(c))), [data.clients, showArchived]); // eslint-disable-line react-hooks/exhaustive-deps
   const kids = (p) => sortClients(data.clients.filter((c) => c.parentId === p.id && visible(c)));
+  const openProjects = (data.projects || []).filter((p) => p.status !== 'Done').length;
   const reviewCount = useMemo(() => {
     const m = {};
     for (const p of data.posts) if (p.status === 'In Review') m[p.clientId] = (m[p.clientId] || 0) + 1;
@@ -117,7 +127,9 @@ function Sidebar({ open, activeId, onAdd }) {
   return (
     <aside className={cx('sidebar', open && 'open')} aria-label="Clients">
       <div className="sidebar-scroll">
-        <button type="button" className={cx('navitem', !activeId && 'on')} onClick={() => go('overview')}><LayoutDashboard /><span className="grow">Overview</span></button>
+        <button type="button" className={cx('navitem', !activeId && !['projects', 'time'].includes(page) && 'on')} onClick={() => go('overview')}><LayoutDashboard /><span className="grow">Overview</span></button>
+        <button type="button" className={cx('navitem', page === 'projects' && 'on')} onClick={() => go('projects')}><FolderKanban /><span className="grow">Projects</span>{openProjects > 0 && <span className="badge">{openProjects}</span>}</button>
+        {data.clients.some((c) => c.timeTracking) && <button type="button" className={cx('navitem', page === 'time' && 'on')} onClick={() => go('time')}><Clock /><span className="grow">Time</span></button>}
         <div className="side-head" style={{ marginTop: 14 }}>
           <span>Clients</span>
           {data.isBilling && (

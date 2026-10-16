@@ -22,6 +22,19 @@ Replaces the Google Apps Script + Google Sheet version. It runs as a Node.js app
 - `/app`: the React app (`public/app`, built from `web/`): team sign-in, workspace, and client portals (`/app?t=<token>`). If `public/app` is missing, the old `public/index.html` is served instead.
 - Old portal links (`/?t=<token>`) redirect to `/app?t=<token>`.
 
+## Design
+
+The app and homepage use an Apple-style look: the system font (San Francisco on Apple devices, Inter elsewhere), frosted top bars, soft shadows instead of borders, large rounded corners and Apple's blue and grays. Light and dark themes follow the device unless changed with the theme button. All colours are tokens at the top of `web/src/styles.css`.
+
+## Update 6: projects, tasks and time (run `supabase/006_projects_time.sql` once)
+
+- **Projects** (sidebar → Projects): a piece of work for a client or sub-client, with a status, dates, a lead and a budget (budget visible to Admins and Account Managers only).
+- **Tasks** on each project's board (To do, In progress, Review, Done). Drag to move, assign people, add due dates and hour estimates.
+- **Time tracking is off by default.** Switch it on per client in **Client settings → Time tracking**. Only then do that client's projects show a timer and **Log time** (`1:30`, `1.5` or `90m`), and the **Time** page appears in the sidebar once any client uses it.
+- **Time page:** a weekly timesheet for you or anyone on the team.
+- **Invoice hours:** turns billable, not-yet-invoiced hours for a main client and its sub-clients into a draft invoice, with one line per project. Those hours are then locked; deleting the invoice unlocks them.
+- **Overview** shows *My tasks* and projects due in the next two weeks; client pages list their open projects.
+
 ## Update 5: other agencies can sign up (run `supabase/005_workspaces.sql` once)
 
 - **Workspaces:** each agency that signs up gets its own private workspace. Your existing data becomes the first one (`ws_main`) on the unlimited `owner` plan. The server limits every database read and write to the signed-in agency's workspace (`lib/db.js`).

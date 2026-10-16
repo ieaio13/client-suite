@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronRight, Pencil, Plus, Share2, Users } from 'lucide-react';
+import { ChevronRight, Clock, FolderKanban, Pencil, Plus, Share2, Users } from 'lucide-react';
 import { rpc } from '../lib/api.js';
 import { useData, upsert, remove } from '../data.jsx';
 import { go } from '../lib/route.js';
@@ -14,6 +14,8 @@ import PostEditor from '../post/PostEditor.jsx';
 import { InvoiceList } from '../invoices/Invoices.jsx';
 import { ClientModal, ShareModal } from './ClientModals.jsx';
 import { usePanel } from './usePanel.js';
+import { ProjectCard, ProjectModal } from '../work/Projects.jsx';
+import { InvoiceHoursModal } from '../work/TimePage.jsx';
 
 /* ---------- Main (parent) client: brands + invoices ---------- */
 export function ParentPage({ client, onAddSub }) {
@@ -62,12 +64,14 @@ export function ParentPage({ client, onAddSub }) {
               </div>
             )}
           </section>
+          <ClientProjects client={client} onInvoiceHours={() => setModal('hours')} />
           {data.isBilling && <InvoiceList client={client} />}
         </div>
       </div></main>
       {panel && <SummaryPanel title={'All ' + client.name + ' brands'} posts={posts} today={data.today} onOpen={(p) => setEditor({ post: p })} onClose={() => setPanel(false)} />}
       {modal === 'edit' && <ClientModal client={client} onClose={() => setModal('')} />}
       {modal === 'share' && <ShareModal client={client} onClose={() => setModal('')} />}
+      {modal === 'hours' && <InvoiceHoursModal clientId={client.id} onClose={() => setModal('')} />}
       {editor && <PostEditor post={editor.post} onClose={() => setEditor(null)} />}
     </>
   );
@@ -88,6 +92,7 @@ export function BrandPage({ client, view }) {
   const columns = (data.boardColumns || []).filter((c) => c.clientId === client.id);
   const tagNames = useMemo(() => [...new Set(all.flatMap((p) => p.tags))].sort(), [all]);
   const currentView = ['calendar', 'board', 'table'].includes(view) ? view : 'calendar';
+  const brandProjects = (data.projects || []).filter((p) => p.clientId === client.id && p.status !== 'Done').length;
 
   const move = async (id, change) => {
     const post = data.posts.find((p) => p.id === id);
@@ -129,6 +134,7 @@ export function BrandPage({ client, view }) {
             <h1 className="page-title"><Dot color={client.color} size={12} />{client.name}</h1>
           </div>
           <div className="page-actions">
+            <button type="button" className="btn" onClick={() => go('projects', client.id)}><FolderKanban />Projects{brandProjects ? ' (' + brandProjects + ')' : ''}</button>
             {data.isBilling && <button type="button" className="btn" onClick={() => setModal('share')}><Share2 />Share</button>}
             {data.isBilling && <button type="button" className="btn btn-icon" onClick={() => setModal('edit')} title="Client settings" aria-label="Client settings"><Pencil /></button>}
             <button type="button" className="btn btn-primary" onClick={() => setEditor({ newFor: { clientId: client.id, date: data.today } })}><Plus />New post</button>
@@ -145,5 +151,33 @@ export function BrandPage({ client, view }) {
       {modal === 'edit' && <ClientModal client={client} onClose={() => setModal('')} />}
       {modal === 'share' && <ShareModal client={client} onClose={() => setModal('')} />}
     </>
+  );
+}
+
+/* ---------- Projects for a main client and its sub-clients ---------- */
+function ClientProjects({ client, onInvoiceHours }) {
+  const { data } = useData();
+  const [adding, setAdding] = useState(false);
+  const family = new Set(data.clients.filter((c) => c.id === client.id || c.parentId === client.id).map((c) => c.id));
+  const byId = Object.fromEntries(data.clients.map((c) => [c.id, c]));
+  const list = (data.projects || []).filter((p) => family.has(p.clientId) && p.status !== 'Done')
+    .sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999'));
+  const pids = new Set((data.projects || []).filter((p) => family.has(p.clientId)).map((p) => p.id));
+  const unbilled = (data.timeEntries || []).filter((e) => pids.has(e.projectId) && e.billable && !e.invoiceId && !e.startedAt).reduce((n, e) => n + e.minutes, 0);
+  return (
+    <section className="stack" style={{ gap: 14 }}>
+      <div className="row-between">
+        <h2 className="section-title">Projects</h2>
+        <div className="row">
+          {data.isBilling && unbilled > 0 && <button type="button" className="btn btn-sm" onClick={onInvoiceHours}><Clock />Invoice {Math.round((unbilled / 60) * 10) / 10}h unbilled</button>}
+          <button type="button" className="btn btn-sm" onClick={() => go('projects', client.id)}>All projects</button>
+          <button type="button" className="btn btn-sm" onClick={() => setAdding(true)}><Plus />New project</button>
+        </div>
+      </div>
+      {list.length === 0
+        ? <div className="card"><Empty icon={FolderKanban} title="No open projects">Track websites, campaigns or any job for this client as a project with tasks and hours.</Empty></div>
+        : <div className="grid grid-3">{list.map((p) => <ProjectCard key={p.id} project={p} byId={byId} />)}</div>}
+      {adding && <ProjectModal defaultClientId={client.id} onClose={() => setAdding(false)} onSaved={(p) => go('project', p.id)} />}
+    </section>
   );
 }

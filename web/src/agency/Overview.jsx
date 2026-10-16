@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CalendarClock, CircleAlert, Clock, Inbox, Receipt } from 'lucide-react';
+import { CalendarClock, CircleAlert, Clock, FolderKanban, Inbox, ListChecks, Receipt } from 'lucide-react';
 import { useData } from '../data.jsx';
 import { go } from '../lib/route.js';
 import { Dot, Empty, StatusPill } from '../components/ui.jsx';
@@ -7,6 +7,8 @@ import { addDays, invoiceTotals, isOverdue, money, postCover, relDay, shortDate,
 import SummaryPanel from '../views/SummaryPanel.jsx';
 import PostEditor from '../post/PostEditor.jsx';
 import { usePanel } from './usePanel.js';
+import { TaskEditor } from '../work/ProjectPage.jsx';
+import { TASK_COLOR } from '../work/workUtil.js';
 
 export default function Overview() {
   const { data } = useData();
@@ -20,6 +22,12 @@ export default function Overview() {
   const week = posts.filter((p) => p.date >= today && p.date <= addDays(today, 7) && p.status !== 'Published').sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const unpaid = data.invoices.filter((i) => active.has(i.clientId) && i.status !== 'Paid');
   const overdue = unpaid.filter((i) => isOverdue(i, today));
+  const [task, setTask] = useState(null);
+  const projectsById = useMemo(() => Object.fromEntries((data.projects || []).map((p) => [p.id, p])), [data.projects]);
+  const myTasks = (data.tasks || []).filter((t) => t.assignee === data.user.email && t.status !== 'Done' && projectsById[t.projectId])
+    .sort((a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999'));
+  const dueProjects = (data.projects || []).filter((p) => p.status !== 'Done' && p.dueDate && p.dueDate <= addDays(today, 14))
+    .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
 
   const row = (p) => {
     const cover = postCover(p);
@@ -59,6 +67,45 @@ export default function Overview() {
             <div style={{ padding: 8 }}>{week.length ? <div className="mini-list">{week.map(row)}</div> : <Empty icon={Clock} title="A quiet week">Nothing scheduled in the next 7 days.</Empty>}</div>
           </section>
         </div>
+        <div className="grid grid-2" style={{ marginTop: 16 }}>
+          <section className="card">
+            <div className="card-head"><h3>My tasks</h3><span className="badge accent">{myTasks.length}</span></div>
+            <div style={{ padding: 8 }}>{myTasks.length ? (
+              <div className="mini-list">{myTasks.slice(0, 8).map((t) => {
+                const p = projectsById[t.projectId];
+                const late = t.dueDate && t.dueDate < today;
+                return (
+                  <button key={t.id} type="button" className="mini-item" onClick={() => setTask(t)}>
+                    <span className="dot" style={{ background: TASK_COLOR[t.status] }} />
+                    <span className="grow" style={{ minWidth: 0 }}>
+                      <span className="t ellipsis" style={{ display: 'block' }}>{t.title}</span>
+                      <span className="s ellipsis" style={{ display: 'block' }}>{p.name} · {t.status}</span>
+                    </span>
+                    <span className={late ? 'danger-text' : 'soft'} style={{ fontSize: 12.5, whiteSpace: 'nowrap' }}>{t.dueDate ? relDay(t.dueDate, today) : ''}</span>
+                  </button>
+                );
+              })}</div>
+            ) : <Empty icon={ListChecks} title="Nothing assigned to you">Tasks assigned to you show up here.</Empty>}</div>
+          </section>
+          <section className="card">
+            <div className="card-head"><h3>Projects due in the next 2 weeks</h3><span className="badge">{dueProjects.length}</span></div>
+            <div style={{ padding: 8 }}>{dueProjects.length ? (
+              <div className="mini-list">{dueProjects.slice(0, 8).map((p) => {
+                const c = byId[p.clientId];
+                return (
+                  <button key={p.id} type="button" className="mini-item" onClick={() => go('project', p.id)}>
+                    <Dot color={c && c.color} />
+                    <span className="grow" style={{ minWidth: 0 }}>
+                      <span className="t ellipsis" style={{ display: 'block' }}>{p.name}</span>
+                      <span className="s ellipsis" style={{ display: 'block' }}>{c ? c.name : ''} · {p.status}</span>
+                    </span>
+                    <span className={p.dueDate < today ? 'danger-text' : 'soft'} style={{ fontSize: 12.5, whiteSpace: 'nowrap' }}>{relDay(p.dueDate, today)}</span>
+                  </button>
+                );
+              })}</div>
+            ) : <Empty icon={FolderKanban} title="No deadlines soon">Projects due in the next 14 days show up here.</Empty>}</div>
+          </section>
+        </div>
         {data.isBilling && overdue.length > 0 && (
           <section className="card" style={{ marginTop: 16 }}>
             <div className="card-head"><h3>Overdue invoices</h3><span className="badge warn">{overdue.length}</span></div>
@@ -79,6 +126,7 @@ export default function Overview() {
       </div></main>
       {panel && <SummaryPanel title="All clients" posts={posts} today={today} onOpen={setEditor} onClose={() => setPanel(false)} />}
       {editor && <PostEditor post={editor} onClose={() => setEditor(null)} />}
+      {task && <TaskEditor task={task} projectId={task.projectId} onClose={() => setTask(null)} />}
     </>
   );
 }
