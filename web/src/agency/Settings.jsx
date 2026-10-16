@@ -1,16 +1,18 @@
 import { useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, Building2, KeyRound, LoaderCircle, LogOut, Plus, ShieldCheck, Tag, Trash2, Upload, User, Users } from 'lucide-react';
+import { ArrowDown, ArrowUp, Building2, CreditCard, KeyRound, LoaderCircle, LogOut, Plus, ShieldCheck, Tag, Trash2, Upload, User, Users } from 'lucide-react';
 import { compressImage, putToSignedUrl, rpc } from '../lib/api.js';
 import { useData } from '../data.jsx';
 import { go } from '../lib/route.js';
 import { Avatar, Field, PasswordInput, useUi } from '../components/ui.jsx';
 import { COLORS, cx } from '../lib/util.js';
+import PlanSettings from './Plan.jsx';
 
 export default function Settings({ tab }) {
   const { data } = useData();
   const tabs = [{ id: 'profile', label: 'Profile', icon: User }];
   if (data.isBilling) tabs.push({ id: 'tags', label: 'Tags', icon: Tag });
   if (data.isAdmin) tabs.push({ id: 'team', label: 'Team & workspace', icon: Users });
+  if (data.isAdmin) tabs.push({ id: 'plan', label: 'Plan', icon: CreditCard });
   const current = tabs.some((t) => t.id === tab) ? tab : 'profile';
   return (
     <main className="main"><div className="main-inner rise" key={current}>
@@ -23,6 +25,7 @@ export default function Settings({ tab }) {
           {current === 'profile' && <Profile />}
           {current === 'tags' && <Tags />}
           {current === 'team' && <Team />}
+          {current === 'plan' && <PlanSettings />}
         </div>
       </div>
     </div></main>

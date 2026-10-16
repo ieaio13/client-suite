@@ -22,6 +22,22 @@ Replaces the Google Apps Script + Google Sheet version. It runs as a Node.js app
 - `/app`: the React app (`public/app`, built from `web/`): team sign-in, workspace, and client portals (`/app?t=<token>`). If `public/app` is missing, the old `public/index.html` is served instead.
 - Old portal links (`/?t=<token>`) redirect to `/app?t=<token>`.
 
+## Update 5: other agencies can sign up (run `supabase/005_workspaces.sql` once)
+
+- **Workspaces:** each agency that signs up gets its own private workspace. Your existing data becomes the first one (`ws_main`) on the unlimited `owner` plan. The server limits every database read and write to the signed-in agency's workspace (`lib/db.js`).
+- **Sign-up:** `/app#/signup`, with email and password (confirmed with an emailed code) or **Sign in with Google** (needs `GOOGLE_CLIENT_ID`).
+- **Free trial and plans:** new workspaces get a 14-day trial with Growth limits. Plans, prices and limits live in `lib/plans.js`, which feeds the homepage pricing, Settings → Plan, and the limits.
+- **When a trial ends**, the workspace becomes read-only (sign-in and viewing still work, nothing is deleted) until a plan is set.
+- **Payments are not built yet.** Admins click **Request plan**, which emails `PLATFORM_EMAIL`. To activate a plan: Supabase → **Table Editor** → `workspaces` → set `plan` to `starter`, `growth` or `agency` (or `owner` for unlimited, `paused` to freeze).
+- One email address can belong to one workspace.
+
+### Google sign-in setup
+
+1. Go to https://console.cloud.google.com → create a project → **APIs & Services** → **OAuth consent screen**: choose External, fill in the app name and your email, and publish it.
+2. **Credentials** → **Create credentials** → **OAuth client ID** → **Web application**.
+3. Under **Authorised JavaScript origins**, add `https://app.arjunkarki1.com.np`. No redirect URI is needed.
+4. Copy the **Client ID** into cPanel as `GOOGLE_CLIENT_ID`, then restart.
+
 ## Update 4: React app (run `supabase/004_board_columns_comment_images.sql` once)
 
 - **Live updates:** changes show up for the team and for open client links without refreshing. This uses a built-in event stream, with Supabase Realtime as an optional extra (set `SUPABASE_ANON_KEY`).

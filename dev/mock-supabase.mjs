@@ -5,18 +5,19 @@ export const FILES = {};
 export const BROADCASTS = [];
 let SEQ = 0;
 
-const PK = { team: 'email', settings: 'key', sessions: 'token_hash', trusted_devices: 'token_hash', login_attempts: 'key' };
-const pk = (t) => PK[t] || 'id';
+const PK = { team: ['email'], settings: ['workspace_id', 'key'], sessions: ['token_hash'], trusted_devices: ['token_hash'], login_attempts: ['key'] };
+const pkCols = (t) => PK[t] || ['id'];
+const samePk = (t, a, b) => pkCols(t).every((c) => a[c] === b[c]);
 const rowsOf = (t) => (TABLES[t] = TABLES[t] || []);
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const err = (message, code) => ({ message, code });
 
 function uniqueViolation(t, row, ignore) {
   const rows = rowsOf(t).filter((r) => r !== ignore);
-  if (rows.some((r) => r[pk(t)] === row[pk(t)])) return true;
+  if (rows.some((r) => samePk(t, r, row))) return true;
   if (t === 'clients' && row.token && rows.some((r) => r.token === row.token)) return true;
   if (t === 'invoices' && rows.some((r) => r.client_id === row.client_id && String(r.number).toLowerCase() === String(row.number).toLowerCase())) return true;
-  if (t === 'tags' && rows.some((r) => String(r.name).toLowerCase() === String(row.name).toLowerCase())) return true;
+  if (t === 'tags' && rows.some((r) => r.workspace_id === row.workspace_id && String(r.name).toLowerCase() === String(row.name).toLowerCase())) return true;
   return false;
 }
 
@@ -77,7 +78,7 @@ class Query {
       }
     } else if (this.op === 'upsert') {
       for (const row of [].concat(this.payload)) {
-        const ex = rowsOf(t).find((r) => r[pk(t)] === row[pk(t)]);
+        const ex = rowsOf(t).find((r) => samePk(t, r, row));
         if (ex) Object.assign(ex, clone(row)); else rowsOf(t).push(clone(row));
         out.push(row);
       }

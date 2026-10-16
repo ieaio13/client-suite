@@ -16,6 +16,7 @@ if (typeof process.loadEnvFile === 'function') {
 const { dispatch } = await import('./lib/handlers.js');
 const { checkEmail } = await import('./lib/email.js');
 const { isValidTopic, subscribe } = await import('./lib/realtime.js');
+const { PLANS, TRIAL_DAYS } = await import('./lib/plans.js');
 
 // The built React app (web/ → public/app). Falls back to the older single-file app.
 const APP_DIR = fileURLToPath(new URL('./public/app/', import.meta.url));
@@ -27,6 +28,29 @@ const MIME = {
 };
 const LANDING_PATH = new URL('./public/landing.html', import.meta.url);
 const MAX_BODY_BYTES = 1024 * 1024;
+
+// The homepage's pricing cards come from lib/plans.js, so prices only live in one place.
+const CHECK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function pricingCards() {
+  const limit = (n, word) => (n === null || n === undefined ? 'Unlimited ' + word : 'Up to ' + n + ' ' + word);
+  return PLANS.map((p, i) => {
+    const items = [limit(p.limits.clients, 'clients'), limit(p.limits.seats, 'team members')].concat(p.features);
+    return '<div class="plan reveal' + (p.popular ? ' popular' : '') + '" style="--d:' + (i * 0.08).toFixed(2) + 's">' +
+      (p.popular ? '<span class="flag">Most popular</span>' : '') +
+      '<h3>' + esc(p.name) + '</h3><p class="blurb">' + esc(p.blurb) + '</p>' +
+      '<div class="price"><b>$' + esc(p.price) + '</b><span>/ month</span></div>' +
+      '<ul>' + items.map((t) => '<li>' + CHECK_SVG + '<span>' + esc(t) + '</span></li>').join('') + '</ul>' +
+      '<a class="btn' + (p.popular ? ' btn-primary' : '') + '" href="/app#/signup">Start ' + TRIAL_DAYS + '-day free trial</a></div>';
+  }).join('\n');
+}
+let landingCache = null;
+async function readLandingHtml() {
+  if (landingCache && !process.env.PREVIEW_MODE) return landingCache;
+  const html = (await fs.readFile(LANDING_PATH, 'utf8')).replace('<!--PRICING_CARDS-->', pricingCards());
+  landingCache = html;
+  return html;
+}
 const BASE_HEADERS = {
   'X-Robots-Tag': 'noindex, nofollow',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
@@ -58,7 +82,10 @@ async function handleRpc(req, res) {
   try {
     body = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}') || {};
   } catch (e) {}
-  const out = await dispatch(body.action, body.auth || {}, body.payload || {});
+  // Behind LiteSpeed the visitor's address is the first X-Forwarded-For entry.
+  const fwd = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  const ip = fwd || (req.socket && req.socket.remoteAddress) || '';
+  const out = await dispatch(body.action, body.auth || {}, body.payload || {}, { ip });
   sendJson(res, 200, out);
 }
 
@@ -162,7 +189,7 @@ http.createServer(async (req, res) => {
       return res.end();
     }
     if (path === '/' || path === '/index.html') {
-      return send(res, 200, 'text/html; charset=utf-8', await fs.readFile(LANDING_PATH));
+      return send(res, 200, 'text/html; charset=utf-8', await readLandingHtml());
     }
     if (path === '/app' || path === '/app/') {
       return send(res, 200, 'text/html; charset=utf-8', await readAppHtml());

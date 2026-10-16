@@ -12,6 +12,7 @@ export default function App() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [codeChallenge, setCodeChallenge] = useState(null);
+  const [authNote, setAuthNote] = useState('');
   const { toast } = useUi();
   const loading = useRef(false);
 
@@ -32,7 +33,8 @@ export default function App() {
   useEffect(() => {
     setAuthExpiredHandler((msg) => {
       session.set('');
-      setData((d) => (d ? { mode: 'login', agencyName: d.agencyName || d.settings?.agencyName, authError: msg } : d));
+      setAuthNote(msg);
+      refresh();
     });
     refresh();
   }, [refresh]);
@@ -57,16 +59,18 @@ export default function App() {
   const onSignedIn = (d) => {
     if (d.sessionToken) session.set(d.sessionToken);
     setCodeChallenge(null);
+    setAuthNote('');
+    if (/signup/.test(window.location.hash)) { try { window.history.replaceState(null, '', '#/'); } catch (e) {} }
     setData(d);
   };
 
   if (codeChallenge) {
     return <CodeScreen agencyName={data.agencyName} challenge={codeChallenge} onDone={onSignedIn}
-      onBack={(msg) => { setCodeChallenge(null); setData({ ...data, mode: 'login', authError: msg || '' }); }} />;
+      onBack={(msg) => { setCodeChallenge(null); setAuthNote(msg || ''); }} />;
   }
   if (data.mode === 'setup') return <SetupScreen agencyName={data.agencyName} onDone={onSignedIn} />;
   if (data.mode === 'login') {
-    return <LoginScreen agencyName={data.agencyName} authError={data.authError} onDone={onSignedIn} onNeedsCode={setCodeChallenge} />;
+    return <LoginScreen key={authNote} boot={data} authError={authNote || data.authError} onDone={onSignedIn} onNeedsCode={setCodeChallenge} />;
   }
 
   const ctx = {
@@ -74,7 +78,8 @@ export default function App() {
     signOut: async () => {
       try { await rpc('logout', {}); } catch (e) {}
       session.set('');
-      setData({ mode: 'login', agencyName: data.settings ? data.settings.agencyName : data.agencyName });
+      setData(null);
+      await refresh();
       toast('Signed out');
     }
   };

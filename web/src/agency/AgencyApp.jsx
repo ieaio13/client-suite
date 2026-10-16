@@ -9,6 +9,7 @@ import { cx, sortClients } from '../lib/util.js';
 import Overview from './Overview.jsx';
 import { ParentPage, BrandPage } from './ClientPages.jsx';
 import Settings from './Settings.jsx';
+import { PlanBanner } from './Plan.jsx';
 import { ClientModal } from './ClientModals.jsx';
 
 const OPEN_KEY = 'cf_tree_closed';
@@ -45,6 +46,7 @@ export default function AgencyApp() {
             <Avatar person={data.user} /><span className="hide-mobile" style={{ fontWeight: 500 }}>{data.user.name}</span>
           </button>
         </>)} />
+      <PlanBanner />
       <div className="shell">
         <Sidebar open={drawer} activeId={client ? client.id : ''} onAdd={(parentId) => setNewClient({ parentId: parentId || '' })} />
         {drawer && <div className="drawer-overlay only-mobile" onClick={() => setDrawer(false)} />}

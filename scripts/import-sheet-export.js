@@ -2,7 +2,10 @@
 // Usage: node scripts/import-sheet-export.js path/to/client-suite-export.json
 // Safe to re-run: rows are upserted by primary key.
 import fs from 'node:fs';
-import { db, q } from '../lib/db.js';
+import { db, q, useWorkspace } from '../lib/db.js';
+
+// Imported data goes into the first workspace (created by supabase/005_workspaces.sql).
+useWorkspace('ws_main');
 
 try {
   process.loadEnvFile('.env');
