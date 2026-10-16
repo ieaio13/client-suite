@@ -46,7 +46,7 @@ export default function Overview() {
         <div className="grid grid-4" style={{ marginBottom: 20 }}>
           <div className="card stat"><div className="k"><Inbox />Waiting on clients</div><div className="v" style={{ color: 'var(--st-review)' }}>{review.length}</div></div>
           <div className="card stat"><div className="k"><CalendarClock />Next 7 days</div><div className="v">{week.length}</div></div>
-          {data.isBilling && <div className="card stat"><div className="k"><Receipt />Outstanding</div><div className="v" style={{ fontSize: 20 }}>{sumByCurrency(unpaid, (i) => invoiceTotals(i).total)}</div></div>}
+          {data.isBilling && <div className="card stat"><div className="k"><Receipt />Outstanding</div><div className="v" style={{ fontSize: 20 }}>{sumByCurrency(unpaid, (i) => invoiceTotals(i).total, data.invoices.length ? data.invoices[0].currency : undefined)}</div></div>}
           {data.isBilling && <div className="card stat"><div className="k"><CircleAlert />Overdue invoices</div><div className="v" style={{ color: overdue.length ? 'var(--danger)' : 'var(--success)' }}>{overdue.length}</div></div>}
         </div>
         <div className="grid grid-2">

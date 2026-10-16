@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CircleCheck, Download, Ellipsis, FileText, Pencil, Plus, Receipt, RotateCcw, Send, Trash2, X } from 'lucide-react';
+import { CircleCheck, Download, Ellipsis, EyeOff, FileText, Pencil, Plus, Receipt, RotateCcw, Send, Trash2, X } from 'lucide-react';
 import { rpc } from '../lib/api.js';
 import { useData, upsert, remove } from '../data.jsx';
 import { Dot, Empty, Field, MenuItem, Modal, Popover, useUi } from '../components/ui.jsx';
@@ -64,6 +64,8 @@ export function InvoiceList({ client }) {
   const showFor = list.some((i) => i.clientId !== client.id);
   const byId = Object.fromEntries(data.clients.map((c) => [c.id, c]));
   const unpaid = list.filter((i) => i.status !== 'Paid');
+  const cur = list.length ? list[0].currency : undefined;
+  const drafts = list.filter((i) => !i.sentAt && i.status !== 'Paid');
 
   const run = async (inv, action, payload, message) => {
     setBusyId(inv.id);
@@ -95,10 +97,16 @@ export function InvoiceList({ client }) {
         <button type="button" className="btn btn-primary" onClick={() => setEditing({ clientId: client.id })}><Plus />New invoice</button>
       </div>
       <div className="grid grid-3">
-        <div className="card stat"><div className="k">Invoiced</div><div className="v">{sumByCurrency(list, (i) => invoiceTotals(i).total)}</div></div>
-        <div className="card stat"><div className="k">Received</div><div className="v" style={{ color: 'var(--success)' }}>{sumByCurrency(list.filter((i) => i.status === 'Paid'), (i) => invoiceTotals(i).total)}</div></div>
-        <div className="card stat"><div className="k">Outstanding · {unpaid.filter((i) => isOverdue(i, today)).length} overdue</div><div className="v" style={{ color: 'var(--warn)' }}>{sumByCurrency(unpaid, (i) => invoiceTotals(i).total)}</div></div>
+        <div className="card stat"><div className="k">Invoiced</div><div className="v">{sumByCurrency(list, (i) => invoiceTotals(i).total, cur)}</div></div>
+        <div className="card stat"><div className="k">Received</div><div className="v" style={{ color: 'var(--success)' }}>{sumByCurrency(list.filter((i) => i.status === 'Paid'), (i) => invoiceTotals(i).total, cur)}</div></div>
+        <div className="card stat"><div className="k">Outstanding · {unpaid.filter((i) => isOverdue(i, today)).length} overdue</div><div className="v" style={{ color: 'var(--warn)' }}>{sumByCurrency(unpaid, (i) => invoiceTotals(i).total, cur)}</div></div>
       </div>
+      {drafts.length > 0 && (
+        <div className="notice">
+          <EyeOff />
+          <span className="grow">{drafts.length === 1 ? '1 draft invoice is' : drafts.length + ' draft invoices are'} not visible to the client yet. Click <strong>Send</strong> to share {drafts.length === 1 ? 'it' : 'them'} in the client portal.</span>
+        </div>
+      )}
       {list.length === 0 ? <div className="card"><Empty icon={Receipt} title="No invoices yet">Create one and send it straight to the client portal.</Empty></div> : (
         <div className="table-wrap">
           <table className="table">
@@ -110,12 +118,12 @@ export function InvoiceList({ client }) {
                   {showFor && <td style={{ whiteSpace: 'nowrap' }}><span className="row" style={{ gap: 6 }}><Dot color={byId[inv.clientId] && byId[inv.clientId].color} size={8} />{byId[inv.clientId] ? byId[inv.clientId].name : ''}</span></td>}
                   <td className="num" style={{ whiteSpace: 'nowrap' }}>{shortDate(inv.issueDate)}</td>
                   <td className="num" style={{ whiteSpace: 'nowrap' }}>{shortDate(inv.dueDate)}</td>
-                  <td><InvoiceStatus inv={inv} today={today} /></td>
+                  <td><InvoiceStatus inv={inv} today={today} />{!inv.sentAt && inv.status !== 'Paid' && <div className="muted" style={{ fontSize: 12, marginTop: 4 }}>Not shared with client</div>}</td>
                   <td className="num" style={{ textAlign: 'right', fontWeight: 600, whiteSpace: 'nowrap' }}>{money(invoiceTotals(inv).total, inv.currency)}</td>
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                     <div className="row" style={{ justifyContent: 'flex-end', gap: 6 }}>
                       <button type="button" className="btn btn-sm" onClick={() => setEditing(inv)}><Pencil />Edit</button>
-                      <button type="button" className="btn btn-sm" disabled={busyId === inv.id} onClick={() => send(inv)}><Send />{inv.sentAt ? 'Resend' : 'Send'}</button>
+                      <button type="button" className={inv.sentAt ? 'btn btn-sm' : 'btn btn-sm btn-primary'} disabled={busyId === inv.id} onClick={() => send(inv)}><Send />{inv.sentAt ? 'Resend' : 'Send'}</button>
                       <Popover trigger={({ toggle }) => <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={toggle} aria-label={'More actions for ' + inv.number}><Ellipsis /></button>}>
                         {({ close }) => (<>
                           <MenuItem icon={Pencil} onClick={() => { close(); setEditing(inv); }}>Edit</MenuItem>

@@ -194,7 +194,7 @@ function PortalInvoices() {
       <div className="page-head"><div><div className="crumbs">{data.rootClient.name}</div><h1 className="page-title">Invoices</h1></div></div>
       <div className="grid grid-3" style={{ marginBottom: 16 }}>
         <div className="card stat"><div className="k">Outstanding</div><div className="v" style={{ color: unpaid.length ? 'var(--warn)' : undefined }}>{unpaid.length ? sumByCurrency(unpaid, (i) => invoiceTotals(i).total) : 'Nothing due'}</div></div>
-        <div className="card stat"><div className="k">Paid</div><div className="v" style={{ color: 'var(--success)' }}>{sumByCurrency(list.filter((i) => i.status === 'Paid'), (i) => invoiceTotals(i).total)}</div></div>
+        <div className="card stat"><div className="k">Paid</div><div className="v" style={{ color: list.some((i) => i.status === 'Paid') ? 'var(--success)' : undefined }}>{list.some((i) => i.status === 'Paid') ? sumByCurrency(list.filter((i) => i.status === 'Paid'), (i) => invoiceTotals(i).total) : 'Nothing yet'}</div></div>
         <div className="card stat"><div className="k">Invoices</div><div className="v">{list.length}</div></div>
       </div>
       {list.length === 0 ? <div className="card"><Empty icon={Receipt} title="No invoices yet">Invoices from {data.agencyName} will appear here.</Empty></div> : (

@@ -66,14 +66,15 @@ export function invoiceTotals(inv) {
 export function isOverdue(inv, today) {
   return inv.status !== 'Paid' && Boolean(inv.dueDate) && inv.dueDate < today;
 }
-export function sumByCurrency(list, pick) {
+export function sumByCurrency(list, pick, fallbackCurrency) {
   const m = {};
   for (const x of list) {
     const cur = x.currency || 'USD';
     m[cur] = (m[cur] || 0) + pick(x);
   }
   const keys = Object.keys(m);
-  return keys.length ? keys.map((k) => money(m[k], k)).join(' · ') : money(0, 'USD');
+  // With nothing to add up, show zero in the currency the client is billed in.
+  return keys.length ? keys.map((k) => money(m[k], k)).join(' · ') : money(0, fallbackCurrency || 'USD');
 }
 
 /* ---------- Posts ---------- */
