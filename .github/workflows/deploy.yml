@@ -13,6 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Builds the React app (web/) into public/app, so edits to web/ go live too.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build the app screens
+        run: cd web && npm ci && npm run build
+
       # Changing this file tells the server to restart the app with the new code.
       - name: Mark app for restart
         run: mkdir -p tmp && date -u > tmp/restart.txt
@@ -36,6 +43,8 @@ jobs:
             supabase/**
             migration/**
             scripts/**
+            web/**
+            dev/**
             README.md
             env.example
             *.zip
