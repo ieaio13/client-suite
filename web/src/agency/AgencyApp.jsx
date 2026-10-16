@@ -33,7 +33,7 @@ export default function AgencyApp() {
   const project = route.page === 'project' ? (data.projects || []).find((p) => p.id === route.id) : null;
   if (route.page === 'settings') content = <Settings tab={route.id || 'profile'} />;
   else if (route.page === 'projects') content = <ProjectsPage clientId={route.id} />;
-  else if (project) content = <ProjectPage project={project} />;
+  else if (project) content = <ProjectPage project={project} tab={route.sub} />;
   else if (route.page === 'time') content = <TimePage />;
   else if (client && !client.parentId) content = <ParentPage client={client} onAddSub={() => setNewClient({ parentId: client.id })} />;
   else if (client) content = <BrandPage client={client} view={route.sub || 'calendar'} />;
@@ -57,7 +57,7 @@ export default function AgencyApp() {
         </>)} />
       <PlanBanner />
       <div className="shell">
-        <Sidebar open={drawer} page={client ? 'client' : route.page === 'project' ? 'projects' : route.page} activeId={client ? client.id : ''} onAdd={(parentId) => setNewClient({ parentId: parentId || '' })} />
+        <Sidebar open={drawer} activeProject={project ? project.id : ''} page={client ? 'client' : route.page === 'project' ? 'projects' : route.page} activeId={client ? client.id : ''} onAdd={(parentId) => setNewClient({ parentId: parentId || '' })} />
         {drawer && <div className="drawer-overlay only-mobile" onClick={() => setDrawer(false)} />}
         {content}
       </div>
@@ -66,14 +66,47 @@ export default function AgencyApp() {
   );
 }
 
-function Sidebar({ open, page, activeId, onAdd }) {
+function Sidebar(props) {
+  const { data } = useData();
+  return data.isGuest ? <GuestSidebar {...props} /> : <TeamSidebar {...props} />;
+}
+
+// Project guests only see their projects.
+function GuestSidebar({ open, page, activeProject }) {
+  const { data } = useData();
+  const byId = Object.fromEntries(data.clients.map((c) => [c.id, c]));
+  const projects = (data.projects || []).slice().sort((a, b) => (a.status === 'Done') - (b.status === 'Done') || a.name.localeCompare(b.name));
+  return (
+    <aside className={cx('sidebar', open && 'open')} aria-label="Your projects">
+      <div className="sidebar-scroll">
+        <button type="button" className={cx('navitem', !activeProject && !['projects', 'time'].includes(page) && 'on')} onClick={() => go('overview')}><LayoutDashboard /><span className="grow">Overview</span></button>
+        {data.clients.some((c) => c.timeTracking) && <button type="button" className={cx('navitem', page === 'time' && 'on')} onClick={() => go('time')}><Clock /><span className="grow">Time</span></button>}
+        <div className="side-head" style={{ marginTop: 14 }}><span>Your projects</span></div>
+        {projects.length === 0 && <div className="soft" style={{ fontSize: 13, padding: '4px 10px' }}>You haven't been added to a project yet.</div>}
+        {projects.map((p) => {
+          const own = data.clients.find((c) => c.projectId === p.id && !c.parentId) || byId[p.clientId];
+          return (
+            <button key={p.id} type="button" className={cx('navitem', activeProject === p.id && 'on')} onClick={() => go('project', p.id)}>
+              <Dot color={own && own.color} /><span className="grow">{p.name}</span>
+              {(data.tasks || []).filter((t) => t.projectId === p.id && t.assignee === data.user.email && t.status !== 'Done').length > 0 &&
+                <span className="badge accent" title="Tasks assigned to you">{(data.tasks || []).filter((t) => t.projectId === p.id && t.assignee === data.user.email && t.status !== 'Done').length}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </aside>
+  );
+}
+
+function TeamSidebar({ open, page, activeId, onAdd }) {
   const { data, patch } = useData();
   const { toast } = useUi();
   const [closed, setClosed] = useState(readClosed);
   const [reorder, setReorder] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const visible = (c) => showArchived || !c.archived;
-  const parents = useMemo(() => sortClients(data.clients.filter((c) => !c.parentId && visible(c))), [data.clients, showArchived]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Clients that live inside a project stay out of the sidebar until moved to the main list.
+  const parents = useMemo(() => sortClients(data.clients.filter((c) => !c.parentId && visible(c) && c.inMainList !== false)), [data.clients, showArchived]); // eslint-disable-line react-hooks/exhaustive-deps
   const kids = (p) => sortClients(data.clients.filter((c) => c.parentId === p.id && visible(c)));
   const openProjects = (data.projects || []).filter((p) => p.status !== 'Done').length;
   const reviewCount = useMemo(() => {

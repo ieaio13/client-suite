@@ -89,8 +89,9 @@ export function ProjectSelect({ value, onChange, id, required }) {
   const groups = {};
   for (const p of data.projects || []) {
     if (p.status === 'Done' && p.id !== value) continue;
-    const c = byId[p.clientId];
-    if (!(c && c.timeTracking) && p.id !== value) continue; // only clients with time tracking on
+    const c = byId[p.clientId] || data.clients.find((x) => x.projectId === p.id && !x.parentId);
+    const tracked = data.clients.some((x) => x.timeTracking && (x.id === p.clientId || x.projectId === p.id));
+    if (!tracked && p.id !== value) continue; // only projects with time tracking on
     const root = c && c.parentId ? byId[c.parentId] : c;
     const key = root ? root.id : '';
     (groups[key] = groups[key] || []).push(p);
@@ -104,6 +105,7 @@ export function ProjectSelect({ value, onChange, id, required }) {
           {groups[r.id].map((p) => <option key={p.id} value={p.id}>{p.name}{byId[p.clientId] && byId[p.clientId].parentId ? ' (' + byId[p.clientId].name + ')' : ''}</option>)}
         </optgroup>
       ))}
+      {groups[''] && <optgroup label="Other projects">{groups[''].map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup>}
     </select>
   );
 }

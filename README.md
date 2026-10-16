@@ -22,6 +22,14 @@ Replaces the Google Apps Script + Google Sheet version. It runs as a Node.js app
 - `/app`: the React app (`public/app`, built from `web/`): team sign-in, workspace, and client portals (`/app?t=<token>`). If `public/app` is missing, the old `public/index.html` is served instead.
 - Old portal links (`/?t=<token>`) redirect to `/app?t=<token>`.
 
+## Update 7: projects as their own workspaces (run `supabase/007_project_workspaces.sql` once)
+
+- **Tabs on every project:** Tasks (board, calendar or table), Content (the posts of the project's clients, as calendar, board or table), Clients, Invoices and People. Time appears when time tracking is on.
+- **Clients inside a project:** add clients and sub-clients from the project's Clients tab. They stay out of your sidebar until you click **Move to my clients**. After moving, they are in both places, so people in the project keep access.
+- **Project guests:** People tab → **Invite someone**. They get an email with a one-time link (valid 7 days) to set a password, or they can use Google sign-in with the same email. Guests see only the projects they're in, and only those projects' clients, posts, tasks and people. They can add and move tasks and posts, comment and upload. They never see your other clients, invoices, budgets, share links or settings, and the server enforces this. Guests don't use a team seat.
+- **Project invoices** are kept apart from client invoices, numbered `PRJ-yyyy-nnn` and billed to one of the project's clients. **Invoice hours** on a project adds one line per task.
+- A project no longer needs a client from your main list. Deleting a project moves its own clients to your main list.
+
 ## Design
 
 The app and homepage use an Apple-style look: the system font (San Francisco on Apple devices, Inter elsewhere), frosted top bars, soft shadows instead of borders, large rounded corners and Apple's blue and grays. Light and dark themes follow the device unless changed with the theme button. All colours are tokens at the top of `web/src/styles.css`.

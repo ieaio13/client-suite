@@ -122,7 +122,8 @@ async function checkSupabase() {
       ['004_board_columns_comment_images.sql', () => rawDb().from('board_columns').select('id').limit(1)],
       ['005_workspaces.sql', () => rawDb().from('team').select('workspace_id').limit(1)],
       ['005_workspaces.sql', () => rawDb().from('workspaces').select('id').limit(1)],
-      ['006_projects_time.sql', () => rawDb().from('time_entries').select('id').limit(1)]
+      ['006_projects_time.sql', () => rawDb().from('time_entries').select('id').limit(1)],
+      ['007_project_workspaces.sql', () => rawDb().from('project_members').select('email').limit(1)]
     ];
     const missing = [];
     for (const [file, run] of needed) {

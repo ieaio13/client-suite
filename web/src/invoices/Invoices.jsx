@@ -53,15 +53,17 @@ export function InvoiceView({ inv, agencyName, billTo, onClose }) {
 }
 
 /* ---------- Agency: invoice list for a main client (includes older sub-client invoices) ---------- */
-export function InvoiceList({ client }) {
+// A client's invoices, or (with `project`) a project's own invoices, billed to one of `billTo`.
+export function InvoiceList({ client, project, billTo, actions }) {
   const { data, patch } = useData();
   const { toast, confirm } = useUi();
   const [editing, setEditing] = useState(null);
   const [busyId, setBusyId] = useState('');
   const today = data.today;
-  const ids = useMemo(() => new Set([client.id].concat(data.clients.filter((c) => c.parentId === client.id).map((c) => c.id))), [client.id, data.clients]);
-  const list = data.invoices.filter((i) => ids.has(i.clientId)).sort((a, b) => (b.issueDate + b.number).localeCompare(a.issueDate + a.number));
-  const showFor = list.some((i) => i.clientId !== client.id);
+  const ids = useMemo(() => (client ? new Set([client.id].concat(data.clients.filter((c) => c.parentId === client.id).map((c) => c.id))) : new Set()), [client, data.clients]);
+  const list = data.invoices.filter((i) => (project ? i.projectId === project.id : ids.has(i.clientId) && !i.projectId))
+    .sort((a, b) => (b.issueDate + b.number).localeCompare(a.issueDate + a.number));
+  const showFor = project ? true : list.some((i) => i.clientId !== client.id);
   const byId = Object.fromEntries(data.clients.map((c) => [c.id, c]));
   const unpaid = list.filter((i) => i.status !== 'Paid');
   const cur = list.length ? list[0].currency : undefined;
@@ -93,8 +95,12 @@ export function InvoiceList({ client }) {
   return (
     <section className="stack" style={{ gap: 14 }} id="invoices">
       <div className="row-between">
-        <h2 className="section-title">Invoices</h2>
-        <button type="button" className="btn btn-primary" onClick={() => setEditing({ clientId: client.id })}><Plus />New invoice</button>
+        <h2 className="section-title">{project ? 'Project invoices' : 'Invoices'}</h2>
+        <div className="row">
+          {actions}
+          <button type="button" className="btn btn-primary" disabled={project && !(billTo && billTo.length)} title={project && !(billTo && billTo.length) ? 'Add a client to this project first' : undefined}
+            onClick={() => setEditing(project ? { clientId: billTo[0].id, projectId: project.id } : { clientId: client.id })}><Plus />New invoice</button>
+        </div>
       </div>
       <div className="grid grid-3">
         <div className="card stat"><div className="k">Invoiced</div><div className="v">{sumByCurrency(list, (i) => invoiceTotals(i).total, cur)}</div></div>
@@ -107,7 +113,7 @@ export function InvoiceList({ client }) {
           <span className="grow">{drafts.length === 1 ? '1 draft invoice is' : drafts.length + ' draft invoices are'} not visible to the client yet. Click <strong>Send</strong> to share {drafts.length === 1 ? 'it' : 'them'} in the client portal.</span>
         </div>
       )}
-      {list.length === 0 ? <div className="card"><Empty icon={Receipt} title="No invoices yet">Create one and send it straight to the client portal.</Empty></div> : (
+      {list.length === 0 ? <div className="card"><Empty icon={Receipt} title="No invoices yet">{project ? (billTo && billTo.length ? 'Project invoices are kept separate and numbered PRJ-…' : 'Add a client to this project, then bill it here.') : 'Create one and send it straight to the client portal.'}</Empty></div> : (
         <div className="table-wrap">
           <table className="table">
             <thead><tr><th>Number</th>{showFor && <th>For</th>}<th>Issued</th><th>Due</th><th>Status</th><th style={{ textAlign: 'right' }}>Total</th><th aria-label="Actions" /></tr></thead>
@@ -144,19 +150,24 @@ export function InvoiceList({ client }) {
           </table>
         </div>
       )}
-      {editing && <InvoiceEditor inv={editing} client={byId[editing.clientId] || client} onClose={() => setEditing(null)} />}
+      {editing && <InvoiceEditor inv={editing} client={byId[editing.clientId] || client} billTo={project && !editing.id ? billTo : null} onClose={() => setEditing(null)} />}
     </section>
   );
 }
 
-function InvoiceEditor({ inv, client, onClose }) {
+export function InvoiceEditor({ inv, client: initialClient, billTo, onClose }) {
   const { data, patch } = useData();
   const { toast } = useUi();
-  const parent = client.parentId ? data.clients.find((c) => c.id === client.parentId) : null;
+  const [clientId, setClientId] = useState(initialClient.id);
+  const client = data.clients.find((c) => c.id === clientId) || initialClient;
+  const currencyFor = (c) => {
+    const p = c.parentId ? data.clients.find((x) => x.id === c.parentId) : null;
+    return c.currency || (p && p.currency) || data.settings.defaultCurrency || 'USD';
+  };
   const dueDays = parseInt(data.settings.dueDays || '14', 10) || 14;
   const [d, setD] = useState(() => inv.id ? JSON.parse(JSON.stringify(inv)) : {
-    clientId: client.id, number: '', issueDate: data.today, dueDate: addDays(data.today, dueDays), status: 'Pending',
-    currency: client.currency || (parent && parent.currency) || data.settings.defaultCurrency || 'USD',
+    clientId: initialClient.id, projectId: inv.projectId || '', number: '', issueDate: data.today, dueDate: addDays(data.today, dueDays), status: 'Pending',
+    currency: currencyFor(initialClient),
     items: [{ description: '', qty: '1', rate: '' }], taxPct: '', discount: '', notes: ''
   });
   const [saving, setSaving] = useState(false);
@@ -177,11 +188,22 @@ function InvoiceEditor({ inv, client, onClose }) {
     }
   };
   return (
-    <Modal size="lg" title={inv.id ? 'Edit invoice ' + inv.number : 'New invoice'} subtitle={<div className="meta-line">Billed to <b>{client.name}</b></div>} onClose={onClose}
+    <Modal size="lg" title={inv.id ? 'Edit invoice ' + inv.number : (d.projectId ? 'New project invoice' : 'New invoice')} subtitle={billTo ? null : <div className="meta-line">Billed to <b>{client.name}</b></div>} onClose={onClose}
       footer={<><div className="num" style={{ fontWeight: 600 }}>Total {money(t.total, d.currency)}</div>
         <div className="row"><button type="button" className="btn" onClick={onClose}>Cancel</button>
           <button type="submit" form="inv-form" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Save invoice'}</button></div></>}>
       <form id="inv-form" className="modal-body stack" style={{ gap: 16 }} onSubmit={save}>
+        {billTo && (
+          <Field label="Bill to" htmlFor="inv-billto">
+            <select id="inv-billto" className="select" value={clientId} onChange={(e) => {
+              const c = data.clients.find((x) => x.id === e.target.value);
+              setClientId(e.target.value);
+              setD({ ...d, clientId: e.target.value, currency: c ? currencyFor(c) : d.currency });
+            }}>
+              {billTo.map((c) => <option key={c.id} value={c.id}>{c.parentId ? '   ' : ''}{c.name}</option>)}
+            </select>
+          </Field>
+        )}
         <div className="grid grid-4" style={{ gap: 12 }}>
           <Field label="Invoice number"><input className="input" placeholder="Automatic" value={d.number} onChange={(e) => set('number', e.target.value)} /></Field>
           <Field label="Currency"><input className="input" value={d.currency} onChange={(e) => set('currency', e.target.value.toUpperCase())} /></Field>

@@ -92,6 +92,17 @@ async function seedPreview() {
   await H(site.id, home.id, -1, 90, 'Mobile layout');
   await H(site.id, '', -3, 60, 'Kickoff meeting', false);
   await H(brand.id, '', -1, 45, 'Discovery call');
+  // A standalone project with its own clients and a guest designer
+  const hotel = (await rpc('saveProject', A, { name: 'Hotel Everest launch', status: 'Active', dueDate: D(20), owner: email, budget: '90000', description: 'Brand-new hotel: social launch and website.' })).project;
+  const he = (await rpc('saveClient', A, { name: 'Hotel Everest', projectId: hotel.id, color: '#0a84ff', currency: 'NPR' })).client;
+  const heSpa = (await rpc('saveClient', A, { name: 'Everest Spa', parentId: he.id, projectId: hotel.id, color: '#30d158' })).client;
+  const heRest = (await rpc('saveClient', A, { name: 'Summit Restaurant', parentId: he.id, projectId: hotel.id, color: '#ff9f0a' })).client;
+  await rpc('savePost', A, { clientId: heSpa.id, text: 'Opening week: 20% off every massage.', status: 'In Review', platforms: ['Instagram'], date: D(3) });
+  await rpc('savePost', A, { clientId: heRest.id, text: 'Meet our chef: momo tasting menu.', status: 'Draft', platforms: ['Facebook'], date: D(6) });
+  await T(hotel.id, 'Logo lockups for spa and restaurant', 'In progress', { dueDate: D(4), estimateHours: '6' });
+  await T(hotel.id, 'Launch post set (10 posts)', 'To do', { dueDate: D(8) });
+  await T(hotel.id, 'Website copy', 'To do', { dueDate: D(12) });
+  const guest = await rpc('inviteToProject', A, { projectId: hotel.id, email: 'gita@studio.test', name: 'Gita Sharma' });
   const editLink = await rpc('manageClientToken', A, { clientId: acme.id, mode: 'create', access: 'edit' });
   const viewLink = await rpc('manageClientToken', A, { clientId: zeta.id, mode: 'create', access: 'view' });
   return {
@@ -99,6 +110,7 @@ async function seedPreview() {
     sessionToken: setup.sessionToken,
     deviceToken: setup.deviceToken,
     portalEdit: '/app?t=' + editLink.token,
-    portalView: '/app?t=' + viewLink.token
+    portalView: '/app?t=' + viewLink.token,
+    guestInvite: guest.inviteLink.replace(/^https?:\/\/[^/]+/, '')
   };
 }

@@ -275,3 +275,51 @@ export function CodeScreen({ agencyName, challenge, onDone, onBack }) {
     </AuthCard>
   );
 }
+
+/* ---------- Accepting a project invite ---------- */
+
+export function InviteScreen({ token, onDone }) {
+  const [info, setInfo] = useState(null);
+  const [err, setErr] = useState('');
+  const [f, setF] = useState({ name: '', pass: '', confirm: '' });
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    rpc('checkInvite', { token })
+      .then((r) => { setInfo(r); setF((x) => ({ ...x, name: r.name || '' })); })
+      .catch((e) => setErr(e.message));
+  }, [token]);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (f.pass !== f.confirm) { setErr('The two passwords do not match.'); return; }
+    setBusy(true);
+    setErr('');
+    try {
+      const d = await rpc('acceptInvite', { token, name: f.name, password: f.pass, deviceLabel: deviceLabel() });
+      if (d.deviceToken && info) devices.save(info.email, d.deviceToken);
+      onDone(d);
+    } catch (e2) { setErr(e2.message); setBusy(false); }
+  };
+  if (!info) {
+    return (
+      <AuthCard>
+        <h1>{err ? 'Invite not valid' : 'Opening your invite…'}</h1>
+        <ErrorNote text={err} />
+        {err && <a href="/app" className="btn btn-block">Go to sign in</a>}
+      </AuthCard>
+    );
+  }
+  return (
+    <AuthCard>
+      <h1>Join {info.projectName ? '“' + info.projectName + '”' : 'the project'}</h1>
+      <p className="sub"><b>{info.agencyName}</b> invited you to work on this project in Flokey. Choose a password for <b>{info.email}</b>.</p>
+      <ErrorNote text={err} />
+      <form className="stack" onSubmit={submit}>
+        <Field label="Your name" htmlFor="iv-name"><input id="iv-name" className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required autoComplete="name" /></Field>
+        <Field label="Password" hint="At least 8 characters" htmlFor="iv-pass"><PasswordInput id="iv-pass" value={f.pass} onChange={(e) => setF({ ...f, pass: e.target.value })} required minLength={8} autoComplete="new-password" /></Field>
+        <Field label="Confirm password" htmlFor="iv-confirm"><PasswordInput id="iv-confirm" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} required minLength={8} autoComplete="new-password" /></Field>
+        <button type="submit" className="btn btn-primary btn-block" disabled={busy}>{busy ? 'Joining…' : 'Join project'}</button>
+      </form>
+      <p className="muted" style={{ fontSize: 12.5, textAlign: 'center', margin: '14px 0 0' }}>You'll only see the projects you're invited to.</p>
+    </AuthCard>
+  );
+}

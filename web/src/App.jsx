@@ -4,7 +4,7 @@ import { rpc, session, setAuthExpiredHandler } from './lib/api.js';
 import { useLive } from './lib/live.js';
 import { DataContext } from './data.jsx';
 import { useUi } from './components/ui.jsx';
-import { SetupScreen, LoginScreen, CodeScreen } from './auth/Auth.jsx';
+import { SetupScreen, LoginScreen, CodeScreen, InviteScreen } from './auth/Auth.jsx';
 import AgencyApp from './agency/AgencyApp.jsx';
 import PortalApp from './portal/PortalApp.jsx';
 
@@ -64,6 +64,15 @@ export default function App() {
     setData(d);
   };
 
+  // Project invite links: #/invite/<token>
+  const invite = (window.location.hash.match(/^#\/invite\/([\w-]+)/) || [])[1];
+  if (invite && data.mode !== 'portal') {
+    return <InviteScreen token={invite} onDone={(d) => {
+      const first = d.projects && d.projects[0];
+      try { window.history.replaceState(null, '', first ? '#/project/' + first.id : '#/'); } catch (e) {}
+      onSignedIn(d);
+    }} />;
+  }
   if (codeChallenge) {
     return <CodeScreen agencyName={data.agencyName} challenge={codeChallenge} onDone={onSignedIn}
       onBack={(msg) => { setCodeChallenge(null); setAuthNote(msg || ''); }} />;

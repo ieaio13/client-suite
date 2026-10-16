@@ -5,7 +5,7 @@ export const FILES = {};
 export const BROADCASTS = [];
 let SEQ = 0;
 
-const PK = { team: ['email'], settings: ['workspace_id', 'key'], sessions: ['token_hash'], trusted_devices: ['token_hash'], login_attempts: ['key'] };
+const PK = { project_members: ['project_id', 'email'], invites: ['token_hash'], team: ['email'], settings: ['workspace_id', 'key'], sessions: ['token_hash'], trusted_devices: ['token_hash'], login_attempts: ['key'] };
 const pkCols = (t) => PK[t] || ['id'];
 const samePk = (t, a, b) => pkCols(t).every((c) => a[c] === b[c]);
 const rowsOf = (t) => (TABLES[t] = TABLES[t] || []);
@@ -30,9 +30,11 @@ function cascadeDelete(t, row) {
   };
   if (t === 'clients') {
     del('clients', (r) => r.parent_id === row.id);
-    for (const tt of ['posts', 'comments', 'activity', 'invoices', 'board_columns', 'projects']) del(tt, (r) => r.client_id === row.id);
+    for (const tt of ['posts', 'comments', 'activity', 'invoices', 'board_columns']) del(tt, (r) => r.client_id === row.id);
+    for (const p of rowsOf('projects').filter((r) => r.client_id === row.id)) p.client_id = null; // on delete set null
   }
   if (t === 'projects') {
+    del('project_members', (r) => r.project_id === row.id);
     del('tasks', (r) => r.project_id === row.id);
     del('time_entries', (r) => r.project_id === row.id);
   }

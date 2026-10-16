@@ -6,7 +6,7 @@ import { go } from '../lib/route.js';
 import { Dot, Field, Modal, useUi } from '../components/ui.jsx';
 import { COLORS, cx } from '../lib/util.js';
 
-export function ClientModal({ client, parentId, onClose }) {
+export function ClientModal({ client, parentId, projectId, onClose, onSaved }) {
   const { data, patch, refresh } = useData();
   const { toast, confirm } = useUi();
   const isNew = !client;
@@ -20,11 +20,12 @@ export function ClientModal({ client, parentId, onClose }) {
     e.preventDefault();
     setBusy(true);
     try {
-      const r = await rpc('saveClient', { id: client ? client.id : '', parentId: d.parentId, name: d.name, notifyEmail: d.notifyEmail, currency: d.currency, color: d.color, timeTracking: Boolean(d.timeTracking) });
+      const r = await rpc('saveClient', { id: client ? client.id : '', parentId: d.parentId, projectId: projectId || '', name: d.name, notifyEmail: d.notifyEmail, currency: d.currency, color: d.color, timeTracking: Boolean(d.timeTracking) });
       patch((x) => ({ ...x, clients: upsert(x.clients, r.client) }));
       toast(isNew ? 'Client added' : 'Client saved', 'success');
       onClose();
-      if (isNew) go('client', r.client.id);
+      if (isNew && onSaved) onSaved(r.client);
+      else if (isNew) go('client', r.client.id);
     } catch (e2) {
       toast(e2.message, 'error');
       setBusy(false);

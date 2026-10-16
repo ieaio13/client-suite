@@ -95,9 +95,34 @@ export function trackingOn(clientsById, clientId) {
   return Boolean(c && c.timeTracking);
 }
 
+// Clients that live inside a project (created there), main clients first.
+export function projectClients(clients, projectId) {
+  const own = clients.filter((c) => c.projectId === projectId && !c.archived);
+  return own.filter((c) => !c.parentId).flatMap((p) => [p].concat(own.filter((c) => c.parentId === p.id)))
+    .concat(own.filter((c) => c.parentId && !own.some((p) => p.id === c.parentId)));
+}
+
+// Who an invoice for this project can be billed to: its own clients, or its linked client's family.
+export function projectBillTo(clients, project) {
+  const own = projectClients(clients, project.id);
+  if (!project.clientId) return own;
+  const linked = clients.filter((c) => c.id === project.clientId || c.parentId === project.clientId);
+  return own.concat(linked.filter((c) => !own.includes(c)));
+}
+
+// Time tracking for a project: on if its linked client, or any of its own clients, has it switched on.
+export function projectTracking(clients, project) {
+  if (!project) return false;
+  return clients.some((c) => c.timeTracking && (c.id === project.clientId || c.projectId === project.id));
+}
+
 // The client a project belongs to, plus its main client for display.
-export function clientLabel(clientsById, clientId) {
+export function clientLabel(clientsById, clientId, project) {
   const c = clientsById[clientId];
+  if (!c && project) {
+    const own = Object.values(clientsById).filter((x) => x.projectId === project.id && !x.parentId);
+    return own.length ? { name: own.map((x) => x.name).join(', '), color: own[0].color } : { name: 'No client yet', color: '' };
+  }
   if (!c) return { name: 'Unknown client', color: '' };
   const parent = c.parentId ? clientsById[c.parentId] : null;
   return { name: parent ? parent.name + ' / ' + c.name : c.name, color: c.color, client: c };

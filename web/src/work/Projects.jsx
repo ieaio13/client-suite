@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { CalendarDays, CircleAlert, Clock, FolderKanban, ListChecks, Plus, Trash2 } from 'lucide-react';
+import { CalendarDays, CircleAlert, Clock, FolderKanban, ListChecks, Plus, Trash2, Users } from 'lucide-react';
 import { rpc } from '../lib/api.js';
 import { useData, upsert, remove } from '../data.jsx';
 import { go } from '../lib/route.js';
 import { Dot, Empty, Field, Modal, Seg, useUi } from '../components/ui.jsx';
 import { cx, money, shortDate, sortClients } from '../lib/util.js';
-import { PROJECT_COLOR, PROJECT_STATUSES, clientLabel, fmtMinutes, personName, projectStats, trackingOn } from './workUtil.js';
+import { PROJECT_COLOR, PROJECT_STATUSES, clientLabel, fmtMinutes, personName, projectStats, projectTracking } from './workUtil.js';
 
 export function ProjectStatus({ status }) {
   return <span className="pill" style={{ '--c': PROJECT_COLOR[status] }}>{status}</span>;
@@ -36,7 +36,7 @@ export default function ProjectsPage({ clientId }) {
         </div>
         <div className="page-actions">
           <Seg label="Show" value={show} onChange={setShow} options={[{ value: 'open', label: 'Open' }, { value: 'done', label: 'Done' }, { value: 'all', label: 'All' }]} />
-          <button type="button" className="btn btn-primary" onClick={() => setEditing({ clientId: clientId || '' })}><Plus />New project</button>
+          {!data.isGuest && <button type="button" className="btn btn-primary" onClick={() => setEditing({ clientId: clientId || '' })}><Plus />New project</button>}
         </div>
       </div>
       {list.length === 0 ? (
@@ -54,7 +54,8 @@ export default function ProjectsPage({ clientId }) {
 export function ProjectCard({ project: p, byId }) {
   const { data } = useData();
   const s = projectStats(p, data.tasks || [], data.timeEntries || [], data.today);
-  const cl = clientLabel(byId, p.clientId);
+  const cl = clientLabel(byId, p.clientId, p);
+  const people = (data.projectMembers || []).filter((m) => m.projectId === p.id).length;
   return (
     <button type="button" className="card card-pad project-card" onClick={() => go('project', p.id)}>
       <div className="row-between" style={{ alignItems: 'flex-start' }}>
@@ -70,7 +71,8 @@ export function ProjectCard({ project: p, byId }) {
       </div>
       <div className="row wrap pc-meta">
         <span className={cx('row', s.overdue && 'danger-text')} style={{ gap: 5 }}><CalendarDays />{p.dueDate ? shortDate(p.dueDate) : 'No due date'}</span>
-        {trackingOn(byId, p.clientId) && <span className="row" style={{ gap: 5 }}><Clock />{fmtMinutes(s.minutes)}</span>}
+        {projectTracking(data.clients, p) && <span className="row" style={{ gap: 5 }}><Clock />{fmtMinutes(s.minutes)}</span>}
+        {people > 0 && <span className="row" style={{ gap: 5 }}><Users />{people}</span>}
         {s.overdueTasks > 0 && <span className="row danger-text" style={{ gap: 5 }}><CircleAlert />{s.overdueTasks} late</span>}
         {p.owner && <span className="row" style={{ gap: 5 }}><ListChecks />{personName(data.team, p.owner)}</span>}
       </div>
@@ -79,9 +81,9 @@ export function ProjectCard({ project: p, byId }) {
 }
 
 function ClientOptions({ clients }) {
-  const parents = sortClients(clients.filter((c) => !c.parentId && !c.archived));
+  const parents = sortClients(clients.filter((c) => !c.parentId && !c.archived && c.inMainList !== false));
   return parents.map((p) => {
-    const subs = sortClients(clients.filter((c) => c.parentId === p.id && !c.archived));
+    const subs = sortClients(clients.filter((c) => c.parentId === p.id && !c.archived && c.inMainList !== false));
     return (
       <optgroup key={p.id} label={p.name}>
         <option value={p.id}>{p.name} (main client)</option>
@@ -141,14 +143,14 @@ export function ProjectModal({ project, defaultClientId, onClose, onSaved }) {
       footer={<>
         {project && data.isBilling ? <button type="button" className="btn btn-ghost" style={{ color: 'var(--danger)' }} onClick={del}><Trash2 />Delete</button> : <span />}
         <div className="row"><button type="button" className="btn" onClick={onClose}>Cancel</button>
-          <button type="submit" form="project-form" className="btn btn-primary" disabled={busy || !f.name.trim() || !f.clientId}>{project ? 'Save' : 'Create project'}</button></div>
+          <button type="submit" form="project-form" className="btn btn-primary" disabled={busy || !f.name.trim()}>{project ? 'Save' : 'Create project'}</button></div>
       </>}>
       <form id="project-form" className="modal-body stack" onSubmit={save}>
         <Field label="Project name" htmlFor="pj-name"><input id="pj-name" className="input" value={f.name} onChange={set('name')} maxLength={120} required autoFocus placeholder="e.g. Website redesign" /></Field>
         <div className="grid grid-2" style={{ gap: 12 }}>
-          <Field label="Client" htmlFor="pj-client">
-            <select id="pj-client" className="select" value={f.clientId} onChange={set('clientId')} required>
-              <option value="">Choose a client…</option>
+          <Field label="Link to one of your clients" htmlFor="pj-client" hint="Optional. You can also add clients inside the project.">
+            <select id="pj-client" className="select" value={f.clientId} onChange={set('clientId')}>
+              <option value="">No, keep it separate</option>
               <ClientOptions clients={data.clients} />
             </select>
           </Field>
